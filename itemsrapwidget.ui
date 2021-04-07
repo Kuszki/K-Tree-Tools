@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ItemsrapWidget</class>
+ <widget class="QWidget" name="ItemsrapWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>135</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Count objects in tree</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="edit-select-all">
+    <normaloff>.</normaloff>.</iconset>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
+   <property name="rowWrapPolicy">
+    <enum>QFormLayout::DontWrapRows</enum>
+   </property>
+   <property name="labelAlignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+   <property name="formAlignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="actionLabel">
+     <property name="text">
+      <string>Action</string>
+     </property>
+     <property name="buddy">
+      <cstring>actionCombo</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="actionCombo">
+     <item>
+      <property name="text">
+       <string>Count any objects</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Count objects from file</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Exclude objects from file</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="pathLabel">
+     <property name="text">
+      <string>List source</string>
+     </property>
+     <property name="buddy">
+      <cstring>pathButton</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout" name="pathLayout">
+     <item>
+      <widget class="QLineEdit" name="pathEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string>Select source file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="pathButton">
+       <property name="text">
+        <string>Open</string>
+       </property>
+       <property name="icon">
+        <iconset theme="document-open">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="columnLabel">
+     <property name="text">
+      <string>Column</string>
+     </property>
+     <property name="buddy">
+      <cstring>columnSpin</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QSpinBox" name="columnSpin">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>99</number>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="levelLabel">
+     <property name="text">
+      <string>Level</string>
+     </property>
+     <property name="buddy">
+      <cstring>levelSpin</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QSpinBox" name="levelSpin">
+     <property name="specialValueText">
+      <string>Any</string>
+     </property>
+     <property name="minimum">
+      <number>-1</number>
+     </property>
+     <property name="maximum">
+      <number>99</number>
+     </property>
+     <property name="value">
+      <number>-1</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>actionCombo</tabstop>
+  <tabstop>pathButton</tabstop>
+  <tabstop>pathEdit</tabstop>
+  <tabstop>columnSpin</tabstop>
+  <tabstop>levelSpin</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
