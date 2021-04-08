@@ -291,8 +291,8 @@ void MainWindow::runActionClicked(void)
 {
 	QVariantList rules;
 
-	rules.append(validator->getValues(true));
 	rules.append(tasks->getValues(true));
+	rules.append(validator->getValues(true));
 	rules.append(raport->getValues(true));
 
 	workerJobRequested(rules);
