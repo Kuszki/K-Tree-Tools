@@ -1049,7 +1049,7 @@ void ThreadWorker::startProcessList(const QString& path, const QVariantList& rul
 {
 	if (isStartable()) start(); else return;
 
-	emit onJobChange("Scanning directory tree");
+	emit onJobChange(tr("Scanning directory tree"));
 	emit onJobStart(0, 0);
 
 	const QString msg = tr("Job %1/%2: %3");
