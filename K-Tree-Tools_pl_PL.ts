@@ -1172,6 +1172,11 @@
         <translation>Nie usunięto żadnych obiektów</translation>
     </message>
     <message>
+        <location filename="threadworker.cpp" line="1052"/>
+        <source>Scanning directory tree</source>
+        <translation>Skanowanie zawartości drzewa</translation>
+    </message>
+    <message>
         <location filename="threadworker.cpp" line="1055"/>
         <source>Job %1/%2: %3</source>
         <translation>Zadanie %1 z %2: %3</translation>
