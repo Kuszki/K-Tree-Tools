@@ -35,6 +35,8 @@ WrapperWidget::WrapperWidget(AbstractWidget* widget, QWidget *parent, const QStr
 	ui->titleCheck->setIcon(widget->windowIcon());
 	ui->titleCheck->setChecked(widget->isActive());
 
+	ui->runButton->setEnabled(widget->isValid());
+
 	setWindowIcon(widget->windowIcon());
 	setWindowIconText(widget->windowIconText());
 	setWindowTitle(widget->windowTitle());
@@ -55,6 +57,12 @@ WrapperWidget::WrapperWidget(AbstractWidget* widget, QWidget *parent, const QStr
 
 	connect(widget, &QWidget::windowIconTextChanged,
 		   this, &QWidget::setWindowIconText);
+
+	connect(widget, &AbstractWidget::onValidChanged,
+		   this, &WrapperWidget::valStatusChanged);
+
+	connect(widget, &AbstractWidget::onValidChanged,
+		   this, &WrapperWidget::onValidChanged);
 
 	connect(widget, &QWidget::windowIconChanged,
 		   ui->titleCheck, &QCheckBox::setIcon);
@@ -79,6 +87,9 @@ WrapperWidget::WrapperWidget(AbstractWidget* widget, QWidget *parent, const QStr
 
 	connect(ui->toggleButton, &QToolButton::toggled,
 		   widget, &WrapperWidget::setVisible);
+
+	connect(ui->runButton, &QToolButton::clicked,
+		   this, &WrapperWidget::runButtonClicked);
 }
 
 WrapperWidget::~WrapperWidget(void)
@@ -116,6 +127,11 @@ void WrapperWidget::setChecked(bool checked)
 	ui->titleCheck->setChecked(checked);
 }
 
+void WrapperWidget::valStatusChanged(bool ok)
+{
+	ui->runButton->setEnabled(ok);
+}
+
 void WrapperWidget::saveButtonClicked(void)
 {
 	const auto path = QFileDialog::getSaveFileName(this,
@@ -125,5 +141,12 @@ void WrapperWidget::saveButtonClicked(void)
 	if (path.isEmpty()) return;
 
 	if (!wrapped->saveData(path)) QMessageBox::critical(this,
-		tr("Error"), tr("Unable to save file"));
+					tr("Error"), tr("Unable to save file"));
+}
+
+void WrapperWidget::runButtonClicked(void)
+{
+	if (wrapped->isValid()) emit onRunRequest(wrapped->getData());
+	else QMessageBox::warning(this, tr("Error"),
+			tr("Provided data is not valid"));
 }

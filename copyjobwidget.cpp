@@ -18,98 +18,125 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "removejobwidget.hpp"
-#include "ui_removejobwidget.h"
+#include "copyjobwidget.hpp"
+#include "ui_copyjobwidget.h"
 
-RemovejobWidget::RemovejobWidget(QWidget *parent, const QVariantMap& data)
-	: AbstractWidget("removejob", parent, false)
-	, ui(new Ui::RemovejobWidget)
+CopyjobWidget::CopyjobWidget(QWidget *parent, const QVariantMap& data)
+	: AbstractWidget("copyjob", parent, false)
+	, ui(new Ui::CopyjobWidget)
 {
 	ui->setupUi(this); setData(data);
 
-	pathStringChanged(ui->pathEdit->text());
+	pathStringChanged();
 
-	connect(ui->pathEdit, &QLineEdit::textChanged,
-		   this, &RemovejobWidget::pathStringChanged);
+	connect(ui->srcpathEdit, &QLineEdit::textChanged,
+		   this, &CopyjobWidget::pathStringChanged);
 
-	connect(ui->pathButton, &QToolButton::clicked,
-		   this, &RemovejobWidget::openButtonClicked);
+	connect(ui->dstpathEdit, &QLineEdit::textChanged,
+		   this, &CopyjobWidget::pathStringChanged);
+
+	connect(ui->srcpathButton, &QToolButton::clicked,
+		   this, &CopyjobWidget::srcopenButtonClicked);
+
+	connect(ui->dstpathButton, &QToolButton::clicked,
+		   this, &CopyjobWidget::dstopenButtonClicked);
 }
 
-RemovejobWidget::~RemovejobWidget(void)
+CopyjobWidget::~CopyjobWidget(void)
 {
 	delete ui;
 }
 
-QVariantMap RemovejobWidget::getData(void) const
+QVariantMap CopyjobWidget::getData(void) const
 {
 	auto base = AbstractWidget::getData();
 
 	base.insert(
 	{
 		{ "action", ui->actionCombo->currentIndex() },
+		{ "format", ui->formatCombo->currentIndex() },
 		{ "level", ui->levelSpin->value() },
-		{ "path", ui->pathEdit->text() },
-		{ "column", ui->columnSpin->value() }
+		{ "path", ui->srcpathEdit->text() },
+		{ "column", ui->columnSpin->value() },
+		{ "dest", ui->dstpathEdit->text() },
 	});
 
 	return base;
 }
 
-bool RemovejobWidget::validateData(const QVariantMap& data) const
+bool CopyjobWidget::validateData(const QVariantMap& data) const
 {
 	return AbstractWidget::validateData(data) &&
 			data.value("action").toInt() >= 0 &&
 			data.value("action").toInt() < ui->actionCombo->count() &&
+			data.value("format").toInt() >= 0 &&
+			data.value("format").toInt() < ui->formatCombo->count() &&
 			data.value("level").toInt() >= ui->levelSpin->minimum() &&
 			data.value("level").toInt() <= ui->levelSpin->maximum() &&
 			data.value("column").toInt() >= ui->columnSpin->minimum() &&
 			data.value("column").toInt() <= ui->columnSpin->maximum() &&
-			!data.value("path").toString().isEmpty();
+			!data.value("path").toString().isEmpty() &&
+			!data.value("dest").toString().isEmpty();
 }
 
-QString RemovejobWidget::getDescriptionString(void) const
+QString CopyjobWidget::getDescriptionString(void) const
 {
 	const auto lvl = ui->levelSpin->value();
 
-	return tr("%5 (level: %1, action: '%2', file: '%3', column: %4)")
+	return tr("%7 (level: %1, action: '%2', format: '%3' file: '%4', column: %5, destination: '%6')")
 			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
 			.arg(ui->actionCombo->currentText())
-			.arg(ui->pathEdit->text())
+			.arg(ui->formatCombo->currentText())
+			.arg(ui->srcpathEdit->text())
 			.arg(ui->columnSpin->value())
+			.arg(ui->dstpathEdit->text())
 			.arg(getJobnameString());
 }
 
-QString RemovejobWidget::getJobnameString(void) const
+QString CopyjobWidget::getJobnameString(void) const
 {
-	return tr("Removing objects from file");
+	return tr("Copying objects from file");
 }
 
-bool RemovejobWidget::setData(const QVariantMap& data, bool force)
+bool CopyjobWidget::setData(const QVariantMap& data, bool force)
 {
 	if (!force && (data.isEmpty() || !validateData(data))) return false;
 
 	ui->actionCombo->setCurrentIndex(data.value("action").toInt());
+	ui->formatCombo->setCurrentIndex(data.value("format").toInt());
 	ui->levelSpin->setValue(data.value("level").toInt());
 	ui->columnSpin->setValue(data.value("column").toInt());
-	ui->pathEdit->setText(data.value("path").toString());
+	ui->srcpathEdit->setText(data.value("path").toString());
+	ui->dstpathEdit->setText(data.value("dest").toString());
 
 	return AbstractWidget::setData(data);
 }
 
-void RemovejobWidget::pathStringChanged(const QString& path)
+void CopyjobWidget::pathStringChanged(void)
 {
-	const bool ok = !path.isEmpty();
-	ui->pathLabel->setStyleSheet(!ok ? wrongstyle : QString());
+	const bool sok = !ui->srcpathEdit->text().isEmpty();
+	ui->srcpathLabel->setStyleSheet(!sok ? wrongstyle : QString());
 
-	emit onValidChanged(ok);
+	const bool dok = !ui->dstpathEdit->text().isEmpty();
+	ui->dstpathLabel->setStyleSheet(!dok ? wrongstyle : QString());
+
+	emit onValidChanged(sok && dok);
 }
 
-void RemovejobWidget::openButtonClicked(void)
+void CopyjobWidget::srcopenButtonClicked(void)
 {
 	const QString path = QFileDialog::getOpenFileName(this,
 			tr("Select source file"), QString(),
 			tr("Text files (*.txt);;CSV files (*.csv);;All files (*.*)"));
 
-	if (!path.isEmpty()) ui->pathEdit->setText(path);
+	if (!path.isEmpty()) ui->srcpathEdit->setText(path);
+}
+
+void CopyjobWidget::dstopenButtonClicked(void)
+{
+	const QString path = QFileDialog::getExistingDirectory(this,
+			tr("Select destination directory"),
+			ui->dstpathEdit->text());
+
+	if (!path.isEmpty()) ui->dstpathEdit->setText(path);
 }

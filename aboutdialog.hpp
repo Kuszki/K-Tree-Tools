@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
- *  {description}                                                          *
- *  Copyright (C) 2020  Łukasz "Kuszki" Dróżdż  lukasz.kuszki@gmail.com    *
+ *  Firebird database editor                                               *
+ *  Copyright (C) 2016  Łukasz "Kuszki" Dróżdż  lukasz.kuszki@gmail.com    *
  *                                                                         *
  *  This program is free software: you can redistribute it and/or modify   *
  *  it under the terms of the GNU General Public License as published by   *
@@ -18,54 +18,27 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef COMMON_HPP
-#define COMMON_HPP
+#ifndef ABOUTDIALOG_HPP
+#define ABOUTDIALOG_HPP
 
-#include <QtCore>
-#include <QtGui>
+#include <QDialog>
 
-namespace Common
+namespace Ui { class AboutDialog; }
+
+class AboutDialog : public QDialog
 {
-	enum class FORMAT
-	{
-		UNKNOWN,
 
-		A0,
-		A1,
-		A2,
-		A3,
-		A4,
-		A5
-	};
+		Q_OBJECT
 
-	struct NODE
-	{
-		QFileInfo info;
-		int level = 0;
+	private:
 
-		QSharedPointer<NODE> parent;
-	};
+		Ui::AboutDialog* ui;
 
-	using NODEPTR = QSharedPointer<NODE>;
-	using NODELIST = QList<NODEPTR>;
-	using NODESET = QSet<NODEPTR>;
+	public:
 
-	FORMAT getFormat(int w, int h, int dpm);
-	FORMAT getFormat(const QImage& img);
+		explicit AboutDialog(QWidget* Parent = nullptr);
+		virtual ~AboutDialog(void) override;
 
-	QString getFormat(FORMAT f);
+};
 
-	int getDPI(const QImage& img);
-
-	bool copyObject(const QString& src,
-				 const QString& dst);
-
-	template<class Number>
-	bool numEq(const Number& a,
-			 const Number& b,
-			 const Number& d);
-
-
-}
-
-#endif // COMMON_HPP
+#endif // ABOUTDIALOG_HPP

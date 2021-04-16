@@ -18,54 +18,51 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef COMMON_HPP
-#define COMMON_HPP
+#ifndef COPYJOBWIDGET_HPP
+#define COPYJOBWIDGET_HPP
 
+#include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
 
-namespace Common
+#include "abstractwidget.hpp"
+
+namespace Ui {	class CopyjobWidget; }
+
+class CopyjobWidget : public AbstractWidget
 {
-	enum class FORMAT
-	{
-		UNKNOWN,
 
-		A0,
-		A1,
-		A2,
-		A3,
-		A4,
-		A5
-	};
+		Q_OBJECT
 
-	struct NODE
-	{
-		QFileInfo info;
-		int level = 0;
+	private:
 
-		QSharedPointer<NODE> parent;
-	};
+		Ui::CopyjobWidget *ui;
 
-	using NODEPTR = QSharedPointer<NODE>;
-	using NODELIST = QList<NODEPTR>;
-	using NODESET = QSet<NODEPTR>;
+	public:
 
-	FORMAT getFormat(int w, int h, int dpm);
-	FORMAT getFormat(const QImage& img);
+		explicit CopyjobWidget(QWidget *parent = nullptr,
+						   const QVariantMap& data = QVariantMap());
+		virtual ~CopyjobWidget(void) override;
 
-	QString getFormat(FORMAT f);
+		virtual QVariantMap getData(void) const override;
 
-	int getDPI(const QImage& img);
+		virtual bool validateData(const QVariantMap& data) const override;
 
-	bool copyObject(const QString& src,
-				 const QString& dst);
+		virtual QString getDescriptionString(void) const override;
+		virtual QString getJobnameString(void) const override;
 
-	template<class Number>
-	bool numEq(const Number& a,
-			 const Number& b,
-			 const Number& d);
+	public slots:
 
+		virtual bool setData(const QVariantMap& data,
+						 bool force = false) override;
 
-}
+	private slots:
 
-#endif // COMMON_HPP
+		void pathStringChanged(void);
+
+		void srcopenButtonClicked(void);
+		void dstopenButtonClicked(void);
+
+};
+
+#endif // COPYJOBWIDGET_HPP

@@ -75,6 +75,7 @@ class AbstractWidget : public QWidget
 	signals:
 
 		void onActiveChanged(bool);
+		void onValidChanged(bool);
 
 };
 

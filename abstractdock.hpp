@@ -103,6 +103,10 @@ class AbstractDock : public QDockWidget
 
 		virtual void setAutosave(bool enabled);
 
+	signals:
+
+		void onRunRequest(const QVariant&);
+
 };
 
 #endif // ABSTRACTDOCK_HPP

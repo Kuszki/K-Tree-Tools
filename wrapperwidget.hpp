@@ -62,11 +62,17 @@ class WrapperWidget : public QWidget
 
 	private slots:
 
+		void valStatusChanged(bool ok);
+
 		void saveButtonClicked(void);
+		void runButtonClicked(void);
 
 	signals:
 
+		void onRunRequest(const QVariant&);
+
 		void onCheckChanged(bool);
+		void onValidChanged(bool);
 		void onUserDeleted(void);
 
 };

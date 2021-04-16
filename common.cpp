@@ -77,3 +77,38 @@ QString Common::getFormat(Common::FORMAT f)
 		return QCoreApplication::translate("Common", "Unknown");
 	}
 }
+
+bool Common::copyObject(const QString& src, const QString& dst)
+{
+	QFileInfo srcFileInfo(src);
+
+	if (srcFileInfo.isDir())
+	{
+		QDir targetDir(dst);
+		targetDir.cdUp();
+
+		if (!targetDir.mkdir(QFileInfo(dst).fileName())) return false;
+
+		QDir sourceDir(src);
+		QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs |
+										    QDir::Hidden | QDir::System |
+										    QDir::NoDotAndDotDot);
+
+		for (const auto& fileName : fileNames)
+		{
+			const QString newSrcFilePath
+					= src + '/' + fileName;
+			const QString newTgtFilePath
+					= dst + '/' + fileName;
+
+			if (!copyObject(newSrcFilePath, newTgtFilePath))
+				return false;
+		}
+	}
+	else if (srcFileInfo.isFile())
+	{
+		return QFile::copy(src, dst);
+	}
+
+	return true;
+}

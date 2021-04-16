@@ -90,6 +90,9 @@ bool AbstractDock::appendWidget(WrapperWidget* widget)
 	connect(widget, &WrapperWidget::onUserDeleted,
 		   this, &AbstractDock::widgetDeleted);
 
+	connect(widget, &WrapperWidget::onRunRequest,
+		   this, &AbstractDock::onRunRequest);
+
 	widgets.append(widget);
 
 	return true;

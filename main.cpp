@@ -20,16 +20,19 @@ int main(int argc, char *argv[])
 	a.setOrganizationDomain("https://github.com/Kuszki");
 	a.setApplicationVersion("1.0");
 
+	const QString tp = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+	const QString ln = QLocale::system().name();
+
 	QTranslator qtTranslator;
-	qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+	qtTranslator.load("qt_" + ln, tp);
 	a.installTranslator(&qtTranslator);
 
 	QTranslator baseTranslator;
-	baseTranslator.load("qtbase_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+	baseTranslator.load("qtbase_" + ln, tp);
 	a.installTranslator(&baseTranslator);
 
 	QTranslator appTranslator;
-	appTranslator.load("K-Tree-Tools_" + QLocale::system().name());
+	appTranslator.load("K-Tree-Tools_" + ln);
 	a.installTranslator(&appTranslator);
 
 	MainWindow w;

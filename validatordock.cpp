@@ -112,6 +112,9 @@ bool ValidatorDock::appendWidget(WrapperWidget* widget)
 		connect(widget, &WrapperWidget::onCheckChanged,
 			   this, &ValidatorDock::refreshStatus);
 
+		connect(widget, &WrapperWidget::onValidChanged,
+			   this, &ValidatorDock::refreshStatus);
+
 		refreshStatus();
 	}
 	else

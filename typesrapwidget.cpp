@@ -97,4 +97,6 @@ void TypesrapWidget::filterStringChanged(const QString& exts)
 {
 	const bool ok = !exts.isEmpty();
 	ui->extLabel->setStyleSheet(!ok ? wrongstyle : QString());
+
+	emit onValidChanged(ok);
 }

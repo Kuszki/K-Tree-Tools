@@ -109,6 +109,9 @@ bool RaportDock::appendWidget(WrapperWidget* widget)
 		connect(widget, &WrapperWidget::onCheckChanged,
 			   this, &RaportDock::refreshStatus);
 
+		connect(widget, &WrapperWidget::onValidChanged,
+			   this, &RaportDock::refreshStatus);
+
 		refreshStatus();
 	}
 	else

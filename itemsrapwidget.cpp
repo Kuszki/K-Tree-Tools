@@ -108,8 +108,10 @@ bool ItemsrapWidget::setData(const QVariantMap& data, bool force)
 
 void ItemsrapWidget::pathStringChanged(const QString& path)
 {
-	const bool ok = !path.isEmpty() || ui->actionCombo->currentIndex();
+	const bool ok = !path.isEmpty() || !ui->actionCombo->currentIndex();
 	ui->pathLabel->setStyleSheet(!ok ? wrongstyle : QString());
+
+	emit onValidChanged(ok);
 }
 
 void ItemsrapWidget::actionIndexChanged(int index)

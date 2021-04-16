@@ -36,6 +36,9 @@ class ThreadWorker : public QObject
 
 		mutable QMutex Mutex;
 
+		QString logpath;
+		unsigned taskno;
+
 		bool Kill = false;
 		bool Job = false;
 
@@ -96,6 +99,12 @@ class ThreadWorker : public QObject
 							 int level, int action, int col,
 							 const QString& path);
 
+		QStringList performCopy(const Common::NODELIST& nodes,
+						    int level, int action,
+						    int col, int format,
+						    const QString& path,
+						    const QString& dest);
+
 	protected:
 
 		void start(void);
@@ -104,6 +113,7 @@ class ThreadWorker : public QObject
 	public slots:
 
 		void startProcessList(const QString& path,
+						  const QString& logs,
 						  const QVariantList& rules);
 
 		void sendTerminateRequest(void);

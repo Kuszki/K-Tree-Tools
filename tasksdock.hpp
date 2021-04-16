@@ -28,6 +28,7 @@
 #include "abstractdock.hpp"
 
 #include "removejobwidget.hpp"
+#include "copyjobwidget.hpp"
 
 namespace Ui {	class TasksDock; }
 

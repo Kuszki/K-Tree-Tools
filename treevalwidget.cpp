@@ -91,6 +91,8 @@ void TreevalWidget::pathStringChanged(const QString& path)
 {
 	const bool ok = !path.isEmpty();
 	ui->pathLabel->setStyleSheet(!ok ? wrongstyle : QString());
+
+	emit onValidChanged(ok);
 }
 
 void TreevalWidget::openButtonClicked(void)

@@ -44,7 +44,9 @@ Common::NODELIST ThreadWorker::getNodes(const QString& path, QSharedPointer<Comm
 {
 	if (!QFileInfo(path).isDir()) return Common::NODELIST();
 
-	const auto filter = QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot;
+	const auto filter = QDir::Files | QDir::Dirs |
+					QDir::Hidden | QDir::System |
+					QDir::NoDotAndDotDot;
 	const int level = parent ? parent->level + 1 : 0;
 
 	Common::NODELIST list, childs;
@@ -375,7 +377,41 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 
 		progress();
 	});
-	else QtConcurrent::blockingMap(nodes,
+	else if (action == 3 || action == 4) QtConcurrent::blockingMap(nodes,
+	[this, &check, &syncl, &progress, &list, level, action]
+	(const auto& n) -> void
+	{
+		if (isCanceled()) return; bool ok = false;
+
+		const bool fok = (action == 3) && n->info.isFile();
+		const bool dok = (action == 4) && n->info.isDir();
+
+		const bool typeok = fok || dok;
+
+		if (typeok && (level == -1 || n->level == level))
+			for (const auto& s : check)
+			{
+				if (QRegExp(s).exactMatch(n->info.fileName()))
+				{
+					ok = true; break;
+				}
+			}
+		else ok = true;
+
+		if (!ok)
+		{
+			const QString local = tr("Object name mismatch on level (%2) in: %1")
+							  .arg(n->info.absoluteFilePath())
+							  .arg(n->level);
+
+			syncl.lock();
+			list.append(local);
+			syncl.unlock();
+		}
+
+		progress();
+	});
+	else if (action == 1) QtConcurrent::blockingMap(nodes,
 	[this, &check, &found, &syncl, &progress, level]
 	(const auto& n) -> void
 	{
@@ -1029,6 +1065,106 @@ QStringList ThreadWorker::performRemove(const Common::NODELIST& nodes, int level
 	return list;
 }
 
+QStringList ThreadWorker::performCopy(const Common::NODELIST& nodes, int level, int action, int col, int format, const QString& path, const QString& dest)
+{
+	Common::NODELIST found;
+	QSet<QString> check;
+	QMutex sync, syncf;
+	QStringList list;
+	QString root;
+
+	emit onJobStart(0, nodes.size()); int step(0);
+
+	const auto progress = [&step, &sync, this] () -> void
+	{
+		sync.lock(); emit onJobProgress(++step); sync.unlock();
+	};
+
+	for (const auto& i : getTable(path, col))
+	{
+		check.insert(i.toString());
+	}
+
+	if (check.isEmpty()) return
+	{
+		tr("Unable to load list from file: %1").arg(path)
+	};
+
+	QtConcurrent::blockingMap(nodes,
+	[this, &check, &found, &syncf, &progress, &root, level, format]
+	(const auto& n) -> void
+	{
+		if (isCanceled()) return;
+		if (n->level == -1)
+		{
+			syncf.lock();
+			root = n->info.absoluteFilePath() + '/';
+			syncf.unlock();
+
+			return;
+		}
+
+		const bool lvlok = (level == -1) || (n->level == level);
+		bool cpok = false;
+
+		switch (format)
+		{
+			case 0:
+				cpok = check.contains(n->info.fileName());
+			break;
+			case 1:
+			{
+				const auto nm = n->info.fileName();
+
+				for (const auto& pattern : check)
+				{
+					cpok = cpok || QRegExp(pattern).exactMatch(nm);
+				}
+			}
+		}
+
+		if (cpok && lvlok)
+		{
+			syncf.lock();
+			found.append(n);
+			syncf.unlock();
+		}
+
+		progress();
+	});
+
+	const QString msg = tr("Copied object: %1");
+	const QString err = tr("Unable to copy object: %1");
+
+	for (const auto& i : found)
+	{
+		QString fpath = i->info.absoluteFilePath();
+		QString fdir = i->info.absolutePath().remove(root);
+		QString fname = i->info.fileName();
+
+		bool ok(false);
+
+		if (action == 0)
+		{
+			ok = Common::copyObject(fpath, dest + '/' + fname);
+		}
+		else if (action == 1)
+		{
+			const QString dst = dest + '/' + fdir +'/' + fname;
+
+			ok = QDir(dest).mkpath(fdir);
+			ok = ok && Common::copyObject(fpath, dst);
+		}
+
+		if (ok) list.append(msg.arg(fpath));
+		else list.append(err.arg(fpath));
+	}
+
+	if (list.isEmpty()) list.append(tr("No objects copied"));
+
+	return list;
+}
+
 void ThreadWorker::start(void)
 {
 	QMutexLocker Locker(&Mutex);
@@ -1045,21 +1181,29 @@ void ThreadWorker::stop(void)
 	Job = false;
 }
 
-void ThreadWorker::startProcessList(const QString& path, const QVariantList& rules)
+void ThreadWorker::startProcessList(const QString& path, const QString& logs, const QVariantList& rules)
 {
 	if (isStartable()) start(); else return;
 
 	emit onJobChange(tr("Scanning directory tree"));
-	emit onJobStart(0, 0);
+	emit onJobStart(0, 0); taskno = 0;
 
 	const QString msg = tr("Job %1/%2: %3");
 	QStringList list;
 
 	const auto nodes = getNodes(path);
 	const int total = rules.size();
-	int step = 0;
 
 	const auto sep = QString("=").repeated(75);
+
+	if (!logs.isEmpty() && QDir(logs).exists())
+	{
+		const QString now = QDateTime::currentDateTime()
+						.toString("dd.MM.yyyy hh.mm.ss");
+
+		if (!QDir(logs).mkdir(now)) logpath = QString();
+		else logpath = logs + '/' + now;
+	}
 
 	for (const auto& r : rules) if (!isCanceled())
 	{
@@ -1071,7 +1215,7 @@ void ThreadWorker::startProcessList(const QString& path, const QVariantList& rul
 		const auto jbrief = job.value("brief").toString();
 		const auto jdesc = job.value("name").toString();
 
-		const QString pname = msg.arg(++step)
+		const QString pname = msg.arg(++taskno)
 						  .arg(total)
 						  .arg(jdesc);
 
@@ -1164,6 +1308,16 @@ void ThreadWorker::startProcessList(const QString& path, const QVariantList& rul
 				job.value("action").toInt(),
 				job.value("column").toInt()-1,
 				job.value("path").toString());
+		}
+		else if (jname == "copyjob")
+		{
+			lines = performCopy(nodes,
+				job.value("level").toInt(),
+				job.value("action").toInt(),
+				job.value("column").toInt()-1,
+				job.value("format").toInt(),
+				job.value("path").toString(),
+				job.value("dest").toString());
 		}
 
 		if (!lines.isEmpty())

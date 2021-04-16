@@ -33,6 +33,8 @@
 
 #include "threadworker.hpp"
 
+#include "aboutdialog.hpp"
+
 #include "common.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -62,6 +64,7 @@ class MainWindow : public QMainWindow
 
 		QString wname;
 		QString root;
+		QString logs;
 
 	public:
 
@@ -71,30 +74,40 @@ class MainWindow : public QMainWindow
 		void setRootPath(const QString& path);
 		QString getRootPath(void) const;
 
+		void setLogPath(const QString& path);
+		QString getLogPath(void) const;
+
 	private:
 
 		bool monitIfWrongRoot(void);
 
 	private slots:
 
+		void aboutActionClicked(void);
 		void saveActionClicked(void);
 		void loadActionClicked(void);
 		void clearActionClicked(void);
 
 		void rootActionClicked(void);
+		void logActionClicked(void);
 		void runActionClicked(void);
 
-		void workerJobRequested(const QVariantList& rules);
-		void workerJobDone(const QStringList& list);
+		void dockOptionsChanged(void);
+
+		void workerJobRequested(const QVariant& rule);
+		void workerJobsRequested(const QVariantList& rules);
+		void workerJobsDone(const QStringList& list);
 
 		void lockWidgets(bool lock = true);
 
 	signals:
 
 		void onJobRequest(const QString&,
+					   const QString&,
 					   const QVariantList&);
 
 		void onRootChanged(const QString&);
+		void onLogsChanged(const QString&);
 
 };
 

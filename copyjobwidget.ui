@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ItemsvalWidget</class>
- <widget class="QWidget" name="ItemsvalWidget">
+ <class>CopyjobWidget</class>
+ <widget class="QWidget" name="CopyjobWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>135</height>
+    <height>199</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Check objects from file</string>
+   <string>Copy objects from file</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="edit-select-all">
+   <iconset theme="edit-copy">
     <normaloff>.</normaloff>.</iconset>
   </property>
   <layout class="QFormLayout" name="formLayout">
@@ -28,7 +28,7 @@
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
    <property name="formAlignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
    </property>
    <item row="0" column="0">
     <widget class="QLabel" name="actionLabel">
@@ -44,55 +44,64 @@
     <widget class="QComboBox" name="actionCombo">
      <item>
       <property name="text">
-       <string>Check files in all subdirectories</string>
+       <string>Copy selected object</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Check files in any subdirectories</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Deny selected objects in subdiriectories</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Validate file names by regular expression</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Validate dir names by regular expression</string>
+       <string>Copy object with path</string>
       </property>
      </item>
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="pathLabel">
+    <widget class="QLabel" name="formatLabel">
      <property name="text">
-      <string>List source</string>
+      <string>Format</string>
      </property>
      <property name="buddy">
-      <cstring>pathButton</cstring>
+      <cstring>formatCombo</cstring>
      </property>
     </widget>
    </item>
    <item row="1" column="1">
-    <layout class="QHBoxLayout" name="pathLayout">
+    <widget class="QComboBox" name="formatCombo">
      <item>
-      <widget class="QLineEdit" name="pathEdit">
+      <property name="text">
+       <string>Object name lists</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Regular expressions</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="dstpathLabel">
+     <property name="text">
+      <string>Destination</string>
+     </property>
+     <property name="buddy">
+      <cstring>dstpathButton</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="dstpathLayout">
+     <item>
+      <widget class="QLineEdit" name="dstpathEdit">
        <property name="readOnly">
         <bool>true</bool>
        </property>
        <property name="placeholderText">
-        <string>Select source file</string>
+        <string>Select destination path</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="pathButton">
+      <widget class="QToolButton" name="dstpathButton">
        <property name="text">
         <string>Open</string>
        </property>
@@ -104,7 +113,42 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
+    <widget class="QLabel" name="srcpathLabel">
+     <property name="text">
+      <string>List source</string>
+     </property>
+     <property name="buddy">
+      <cstring>srcpathButton</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <layout class="QHBoxLayout" name="srcpathLayout">
+     <item>
+      <widget class="QLineEdit" name="srcpathEdit">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string>Select source file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="srcpathButton">
+       <property name="text">
+        <string>Open</string>
+       </property>
+       <property name="icon">
+        <iconset theme="document-open">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0">
     <widget class="QLabel" name="columnLabel">
      <property name="text">
       <string>Column</string>
@@ -114,7 +158,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="4" column="1">
     <widget class="QSpinBox" name="columnSpin">
      <property name="minimum">
       <number>1</number>
@@ -124,7 +168,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="levelLabel">
      <property name="text">
       <string>Level</string>
@@ -134,7 +178,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="5" column="1">
     <widget class="QSpinBox" name="levelSpin">
      <property name="specialValueText">
       <string>Any</string>
@@ -154,10 +198,12 @@
  </widget>
  <tabstops>
   <tabstop>actionCombo</tabstop>
-  <tabstop>pathButton</tabstop>
-  <tabstop>pathEdit</tabstop>
+  <tabstop>srcpathEdit</tabstop>
+  <tabstop>srcpathButton</tabstop>
   <tabstop>columnSpin</tabstop>
   <tabstop>levelSpin</tabstop>
+  <tabstop>dstpathEdit</tabstop>
+  <tabstop>dstpathButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

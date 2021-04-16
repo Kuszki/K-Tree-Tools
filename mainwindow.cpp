@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	Settings.beginGroup("Settings");
 	root = Settings.value("root").toString();
+	logs = Settings.value("logs").toString();
 	bool al = Settings.value("autoload").toBool();
 	bool as = Settings.value("autosave").toBool();
 	Settings.endGroup();
@@ -79,6 +80,13 @@ MainWindow::MainWindow(QWidget *parent)
 	restoreState(Settings.value("state").toByteArray());
 	Settings.endGroup();
 
+	Settings.beginGroup("Docks");
+	ui->actionAllowclose->setChecked(Settings.value("close", true).toBool());
+	ui->actionAllowfloat->setChecked(Settings.value("float", true).toBool());
+	ui->actionAllowmove->setChecked(Settings.value("move", true).toBool());
+	ui->actionLockdocks->setChecked(Settings.value("lock", false).toBool());
+	Settings.endGroup();
+
 	if (isMaximized()) setGeometry(QApplication::desktop()->availableGeometry(this));
 
 	if (!root.isEmpty() && QDir(root).exists())
@@ -89,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent)
 		treeview->selectRoot(root);
 	}
 
+	dockOptionsChanged();
 	lockWidgets(false);
 
 	connect(terminator, &QPushButton::clicked,
@@ -98,12 +107,21 @@ MainWindow::MainWindow(QWidget *parent)
 		   terminator, &QPushButton::hide);
 
 	connect(validator, &ValidatorDock::onValidationRequest,
-		   this, &MainWindow::workerJobRequested);
+		   this, &MainWindow::workerJobsRequested);
 
 	connect(tasks, &TasksDock::onTasksRequest,
-		   this, &MainWindow::workerJobRequested);
+		   this, &MainWindow::workerJobsRequested);
 
 	connect(raport, &RaportDock::onRaportRequest,
+		   this, &MainWindow::workerJobsRequested);
+
+	connect(validator, &ValidatorDock::onRunRequest,
+		   this, &MainWindow::workerJobRequested);
+
+	connect(tasks, &TasksDock::onRunRequest,
+		   this, &MainWindow::workerJobRequested);
+
+	connect(raport, &RaportDock::onRunRequest,
 		   this, &MainWindow::workerJobRequested);
 
 	connect(worker, &ThreadWorker::onJobStart,
@@ -119,7 +137,7 @@ MainWindow::MainWindow(QWidget *parent)
 		   treeview, &TreeviewDock::selectRoot);
 
 	connect(worker, &ThreadWorker::onJobDone,
-		   this, &MainWindow::workerJobDone);
+		   this, &MainWindow::workerJobsDone);
 
 	connect(this, &MainWindow::onJobRequest,
 		   worker, &ThreadWorker::startProcessList);
@@ -148,6 +166,21 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionClearall, &QAction::triggered,
 		   this, &MainWindow::clearActionClicked);
 
+	connect(ui->actionAbout, &QAction::triggered,
+		   this, &MainWindow::aboutActionClicked);
+
+	connect(ui->actionAllowclose, &QAction::toggled,
+		   this, &MainWindow::dockOptionsChanged);
+
+	connect(ui->actionAllowfloat, &QAction::toggled,
+		   this, &MainWindow::dockOptionsChanged);
+
+	connect(ui->actionAllowmove, &QAction::toggled,
+		   this, &MainWindow::dockOptionsChanged);
+
+	connect(ui->actionLockdocks, &QAction::toggled,
+		   this, &MainWindow::dockOptionsChanged);
+
 	connect(worker, &ThreadWorker::onJobChange,
 	[this] (const QString& msg) -> void
 	{
@@ -166,8 +199,16 @@ MainWindow::~MainWindow(void)
 
 	Settings.beginGroup("Settings");
 	Settings.setValue("root", root);
+	Settings.setValue("logs", logs);
 	Settings.setValue("autoload", ui->actionAutorestore->isChecked());
 	Settings.setValue("autosave", ui->actionAutosave->isChecked());
+	Settings.endGroup();
+
+	Settings.beginGroup("Docks");
+	Settings.setValue("close", ui->actionAllowclose->isChecked());
+	Settings.setValue("float", ui->actionAllowfloat->isChecked());
+	Settings.setValue("move", ui->actionAllowmove->isChecked());
+	Settings.setValue("lock", ui->actionLockdocks->isChecked());
 	Settings.endGroup();
 
 	worker->sendTerminateRequest();
@@ -192,6 +233,19 @@ bool MainWindow::monitIfWrongRoot(void)
 	}
 
 	return true;
+}
+
+void MainWindow::aboutActionClicked(void)
+{
+	AboutDialog* dialog = new AboutDialog(this);
+
+	connect(dialog, &AboutDialog::accepted,
+		   dialog, &AboutDialog::deleteLater);
+
+	connect(dialog, &AboutDialog::rejected,
+		   dialog, &AboutDialog::deleteLater);
+
+	dialog->open();
 }
 
 void MainWindow::saveActionClicked(void)
@@ -270,13 +324,25 @@ void MainWindow::clearActionClicked(void)
 
 void MainWindow::setRootPath(const QString& path)
 {
-	setWindowTitle(QString("%1 (%2)").arg(wname).arg(path));
+	setWindowTitle(QString("%1 (%2)")
+				.arg(wname).arg(path));
+
 	emit onRootChanged(root = path);
 }
 
 QString MainWindow::getRootPath(void) const
 {
 	return root;
+}
+
+void MainWindow::setLogPath(const QString& path)
+{
+	emit onLogsChanged(root = path);
+}
+
+QString MainWindow::getLogPath(void) const
+{
+	return logs;
 }
 
 void MainWindow::rootActionClicked(void)
@@ -287,6 +353,14 @@ void MainWindow::rootActionClicked(void)
 	if (!path.isEmpty()) setRootPath(path);
 }
 
+void MainWindow::logActionClicked(void)
+{
+	const QString path = QFileDialog::getExistingDirectory(this,
+		tr("Select log directory"), root);
+
+	if (!path.isEmpty()) setLogPath(path);
+}
+
 void MainWindow::runActionClicked(void)
 {
 	QVariantList rules;
@@ -295,10 +369,46 @@ void MainWindow::runActionClicked(void)
 	rules.append(validator->getValues(true));
 	rules.append(raport->getValues(true));
 
-	workerJobRequested(rules);
+	workerJobsRequested(rules);
 }
 
-void MainWindow::workerJobRequested(const QVariantList& rules)
+void MainWindow::dockOptionsChanged(void)
+{
+	const QList<QDockWidget*> list =
+	{
+		validator, treeview, console, raport, tasks
+	};
+
+	QDockWidget::DockWidgetFeatures flags = QDockWidget::NoDockWidgetFeatures;
+
+	if (ui->actionAllowfloat->isChecked())
+		flags |= QDockWidget::DockWidgetFloatable;
+
+	if (ui->actionAllowmove->isChecked())
+		flags |= QDockWidget::DockWidgetMovable;
+
+	if (ui->actionAllowclose->isChecked())
+		flags |= QDockWidget::DockWidgetClosable;
+
+	if (ui->actionLockdocks->isChecked())
+		flags = QDockWidget::NoDockWidgetFeatures;
+
+	for (const auto& w : list) w->setFeatures(flags);
+}
+
+void MainWindow::workerJobRequested(const QVariant& rule)
+{
+	if (!worker->isStartable()) return;
+
+	if (monitIfWrongRoot())
+	{
+		lockWidgets(true); emit onJobRequest(root, logs, { rule });
+	}
+	else QMessageBox::warning(this, tr("Error"),
+			tr("No existing root directory selected"));
+}
+
+void MainWindow::workerJobsRequested(const QVariantList& rules)
 {
 	if (!worker->isStartable()) return;
 
@@ -306,13 +416,13 @@ void MainWindow::workerJobRequested(const QVariantList& rules)
 			tr("No active rules or tasks present"));
 	else if (monitIfWrongRoot())
 	{
-		lockWidgets(true); emit onJobRequest(root, rules);
+		lockWidgets(true); emit onJobRequest(root, logs, rules);
 	}
 	else QMessageBox::warning(this, tr("Error"),
 			tr("No existing root directory selected"));
 }
 
-void MainWindow::workerJobDone(const QStringList&)
+void MainWindow::workerJobsDone(const QStringList&)
 {
 	lockWidgets(false);
 }

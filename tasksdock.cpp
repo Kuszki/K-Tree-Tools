@@ -41,6 +41,7 @@ TasksDock::TasksDock(QWidget *parent, bool loadlast)
 
 	actions = QList<QAction*>()
 			<< new QAction(QIcon::fromTheme("edit-delete"), tr("Remove objects from file"), this)
+			<< new QAction(QIcon::fromTheme("edit-copy"), tr("Copy objects from file"), this)
 			<< separator
 			<< new QAction(QIcon::fromTheme("document-new"), tr("Import object from file"), this)
 			<< new QAction(QIcon::fromTheme("folder-new"), tr("Import list from file"), this);
@@ -72,6 +73,7 @@ AbstractWidget* TasksDock::createWidget(const QString& name)
 {
 	if (name.isEmpty()) return nullptr;
 	else if (name == "removejob") return new RemovejobWidget();
+	else if (name == "copyjob") return new CopyjobWidget();
 	else return nullptr;
 }
 
@@ -80,8 +82,9 @@ AbstractWidget* TasksDock::createWidget(int id)
 	switch (id)
 	{
 		case 0: return new RemovejobWidget();
-		case 2: return readWidget();
-		case 3: appendDataDialog();
+		case 1: return new CopyjobWidget();
+		case 3: return readWidget();
+		case 4: appendDataDialog();
 		default: return nullptr;
 	}
 }
@@ -95,6 +98,9 @@ bool TasksDock::appendWidget(WrapperWidget* widget)
 		ui->scrollLayout->addWidget(widget);
 
 		connect(widget, &WrapperWidget::onCheckChanged,
+			   this, &TasksDock::refreshStatus);
+
+		connect(widget, &WrapperWidget::onValidChanged,
 			   this, &TasksDock::refreshStatus);
 
 		refreshStatus();
