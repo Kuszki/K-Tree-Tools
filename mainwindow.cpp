@@ -85,6 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->actionAllowfloat->setChecked(Settings.value("float", true).toBool());
 	ui->actionAllowmove->setChecked(Settings.value("move", true).toBool());
 	ui->actionLockdocks->setChecked(Settings.value("lock", false).toBool());
+	ui->actionGenerate->setChecked(Settings.value("logs", false).toBool());
 	Settings.endGroup();
 
 	if (isMaximized()) setGeometry(QApplication::desktop()->availableGeometry(this));
@@ -101,7 +102,8 @@ MainWindow::MainWindow(QWidget *parent)
 	lockWidgets(false);
 
 	connect(terminator, &QPushButton::clicked,
-		   worker, &ThreadWorker::sendTerminateRequest);
+		   worker, &ThreadWorker::sendTerminateRequest,
+		   Qt::DirectConnection);
 
 	connect(terminator, &QPushButton::clicked,
 		   terminator, &QPushButton::hide);
@@ -144,6 +146,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(ui->actionRoot, &QAction::triggered,
 		   this, &MainWindow::rootActionClicked);
+
+	connect(ui->actionLogs, &QAction::triggered,
+		   this, &MainWindow::logActionClicked);
 
 	connect(ui->actionRun, &QAction::triggered,
 		   this, &MainWindow::runActionClicked);
@@ -209,6 +214,7 @@ MainWindow::~MainWindow(void)
 	Settings.setValue("float", ui->actionAllowfloat->isChecked());
 	Settings.setValue("move", ui->actionAllowmove->isChecked());
 	Settings.setValue("lock", ui->actionLockdocks->isChecked());
+	Settings.setValue("logs", ui->actionGenerate->isChecked());
 	Settings.endGroup();
 
 	worker->sendTerminateRequest();
@@ -337,7 +343,7 @@ QString MainWindow::getRootPath(void) const
 
 void MainWindow::setLogPath(const QString& path)
 {
-	emit onLogsChanged(root = path);
+	emit onLogsChanged(logs = path);
 }
 
 QString MainWindow::getLogPath(void) const
@@ -356,7 +362,7 @@ void MainWindow::rootActionClicked(void)
 void MainWindow::logActionClicked(void)
 {
 	const QString path = QFileDialog::getExistingDirectory(this,
-		tr("Select log directory"), root);
+		tr("Select log directory"), logs);
 
 	if (!path.isEmpty()) setLogPath(path);
 }
@@ -400,9 +406,12 @@ void MainWindow::workerJobRequested(const QVariant& rule)
 {
 	if (!worker->isStartable()) return;
 
+	const QString lpath = ui->actionGenerate->isChecked() ?
+						  logs : QString();
+
 	if (monitIfWrongRoot())
 	{
-		lockWidgets(true); emit onJobRequest(root, logs, { rule });
+		lockWidgets(true); emit onJobRequest(root, lpath, { rule });
 	}
 	else QMessageBox::warning(this, tr("Error"),
 			tr("No existing root directory selected"));
@@ -412,11 +421,14 @@ void MainWindow::workerJobsRequested(const QVariantList& rules)
 {
 	if (!worker->isStartable()) return;
 
+	const QString lpath = ui->actionGenerate->isChecked() ?
+						  logs : QString();
+
 	if (rules.isEmpty()) QMessageBox::warning(this, tr("Error"),
 			tr("No active rules or tasks present"));
 	else if (monitIfWrongRoot())
 	{
-		lockWidgets(true); emit onJobRequest(root, logs, rules);
+		lockWidgets(true); emit onJobRequest(root, lpath, rules);
 	}
 	else QMessageBox::warning(this, tr("Error"),
 			tr("No existing root directory selected"));

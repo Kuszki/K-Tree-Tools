@@ -55,6 +55,8 @@
     <property name="title">
      <string>Tasks</string>
     </property>
+    <addaction name="actionGenerate"/>
+    <addaction name="separator"/>
     <addaction name="actionAutosave"/>
     <addaction name="actionAutorestore"/>
     <addaction name="separator"/>
@@ -222,13 +224,25 @@
   </action>
   <action name="actionLogs">
    <property name="icon">
-    <iconset theme="text-editor"/>
+    <iconset theme="text-editor">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Select log directory</string>
    </property>
    <property name="toolTip">
     <string>Select log directory</string>
+   </property>
+  </action>
+  <action name="actionGenerate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="mail-unread"/>
+   </property>
+   <property name="text">
+    <string>Generate log files</string>
    </property>
   </action>
  </widget>

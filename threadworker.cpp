@@ -40,7 +40,7 @@ bool ThreadWorker::isStartable(void) const
 	return !Job && !Kill;
 }
 
-Common::NODELIST ThreadWorker::getNodes(const QString& path, QSharedPointer<Common::NODE> parent) const
+Common::NODELIST ThreadWorker::getNodes(const QString& path, Common::NODEPTR parent) const
 {
 	if (!QFileInfo(path).isDir()) return Common::NODELIST();
 
@@ -98,11 +98,19 @@ QVariantList ThreadWorker::getTable(const QString& path, int col) const
 	return list;
 }
 
-QStringList ThreadWorker::validateDepth(const Common::NODELIST& nodes, int min, int max, int files)
+QStringList ThreadWorker::validateDepth(const Common::NODELIST& nodes, int min, int max, int files, const QString& objDesc)
 {
-	Common::NODELIST listA, listB;
-	QMutex sync, syncA, syncB;
-	QStringList list;
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Level"), tr("Comment")
+	};
+
+	Common::NODELIST listA, listB, listC;
+	QMutex sync, syncA, syncB, syncC;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -112,7 +120,7 @@ QStringList ThreadWorker::validateDepth(const Common::NODELIST& nodes, int min, 
 	};
 
 	QtConcurrent::blockingMap(nodes,
-	[this, &nodes, &listA, &listB, &syncA, &syncB, &progress, min, max, files]
+	[this, &nodes, &listA, &listB, &listC, &syncA, &syncB, &syncC, &progress, min, max, files]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -139,11 +147,18 @@ QStringList ThreadWorker::validateDepth(const Common::NODELIST& nodes, int min, 
 		}
 		else goodFound = true;
 
-		if (!goodFound)
+		if (!goodFound && n->info.isDir())
 		{
 			syncA.lock();
 			listA.append(n);
 			syncA.unlock();
+		}
+
+		if (!goodFound && n->info.isFile())
+		{
+			syncC.lock();
+			listC.append(n);
+			syncC.unlock();
 		}
 
 		if (n->info.isDir() && n->level >= max)
@@ -158,6 +173,7 @@ QStringList ThreadWorker::validateDepth(const Common::NODELIST& nodes, int min, 
 
 	const QString msgA = tr("Not enough deep (%1) in object: %2");
 	const QString msgB = tr("Too high depth (%1) in object: %2");
+	const QString msgC = tr("File in wrong level (%1): %2");
 
 	for (const auto& l : listA) list.append(msgA
 		.arg(l->level + (l->info.isDir() ? 1 : 0))
@@ -167,14 +183,48 @@ QStringList ThreadWorker::validateDepth(const Common::NODELIST& nodes, int min, 
 		.arg(l->level + (l->info.isDir() ? 1 : 0))
 		.arg(l->info.absoluteFilePath()));
 
+	for (const auto& l : listC) list.append(msgC
+		.arg(l->level + (l->info.isDir() ? 1 : 0))
+		.arg(l->info.absoluteFilePath()));
+
+	if (logpath.isEmpty()) return list;
+
+	for (const auto& l : listA) logs.append(
+		QString("%2%1%3%1%4").arg(fsep)
+		.arg(l->info.absoluteFilePath())
+		.arg(l->level + (l->info.isDir() ? 1 : 0))
+		.arg(tr("Not enough deep")));
+
+	for (const auto& l : listB) logs.append(
+		QString("%2%1%3%1%4").arg(fsep)
+		.arg(l->info.absoluteFilePath())
+		.arg(l->level + (l->info.isDir() ? 1 : 0))
+		.arg(tr("Too high depth")));
+
+	for (const auto& l : listC) logs.append(
+		QString("%2%1%3%1%4").arg(fsep)
+		.arg(l->info.absoluteFilePath())
+		.arg(l->level + (l->info.isDir() ? 1 : 0))
+		.arg(tr("File in wrong level")));
+
+	if (!logs.isEmpty()) saveLogs("deepval", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::validateEmpty(const Common::NODELIST& nodes, int level, int action, int obj)
+QStringList ThreadWorker::validateEmpty(const Common::NODELIST& nodes, int level, int action, int obj, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Level")
+	};
+
 	Common::NODESET listA;
 	QMutex sync, syncA;
-	QStringList list;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -229,13 +279,30 @@ QStringList ThreadWorker::validateEmpty(const Common::NODELIST& nodes, int level
 		.arg(l->level + (l->info.isDir() ? 1 : 0))
 		.arg(l->info.absoluteFilePath()));
 
+	if (logpath.isEmpty()) return list;
+
+	for (const auto& l : listA) logs.append(
+		QString("%2%1%3").arg(fsep)
+		.arg(l->info.absoluteFilePath())
+		.arg(l->level + (l->info.isDir() ? 1 : 0)));
+
+	if (!logs.isEmpty()) saveLogs("emptyval", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int level, int dpi, int qual, const QStringList& filter)
+QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int level, int dpi, int qual, const QStringList& filter, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name"), tr("Format"), tr("Quality"), tr("Page"), tr("Resolution"), tr("Comment")
+	};
+
 	QMutex sync, syncl;
-	QStringList list;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -245,7 +312,7 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 	};
 
 	QtConcurrent::blockingMap(nodes,
-	[this, &list, &syncl, &progress, &filter, level, dpi, qual]
+	[this, &list, &logs, &syncl, &progress, &filter, level, dpi, qual]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -262,13 +329,31 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 			const QString ierror = tr("Unable to process %2 from %3: %1").arg(path);
 
 			QImageReader file(path);
-			QStringList local;
+			QStringList local, raport;
 
-			if (!file.canRead()) local.append(ferror.arg(file.errorString()));
+			QStringList logLine =
+			{
+				n->info.absolutePath(), n->info.fileName(), file.format(),
+				file.quality() == -1 ? QString() : QString::number(file.quality()),
+				QString(), QString(), QString()
+			};
+
+			if (!file.canRead())
+			{
+				logLine[6] = tr("Unable to process image");
+
+				local.append(ferror.arg(file.errorString()));
+				raport.append(logLine.join(fsep));
+			}
 			else
 			{
 				if (file.quality() != -1 && file.quality() < qual)
+				{
+					logLine[6] = tr("Too low image quality");
+
 					local.append(qerror.arg(file.quality()));
+					raport.append(logLine.join(fsep));
+				}
 
 				const auto total = file.imageCount();
 				auto count = total;
@@ -277,17 +362,32 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 				{
 					const auto img = file.read(); ++i;
 
-					if (img.isNull()) local.append(perror
-											 .arg(file.errorString())
-											 .arg(i));
+					if (img.isNull())
+					{
+						logLine[4] = QString::number(i);
+						logLine[5] = QString();
+						logLine[6] = tr("Unable to process page");
+
+						local.append(perror
+								   .arg(file.errorString())
+								   .arg(i));
+						raport.append(logLine.join(fsep));
+					}
 					else
 					{
 						const int res = Common::getDPI(img);
 
-						if (qAbs(res - dpi) >= 5) local.append(
-									derror.arg(res).arg(i));
+						if (qAbs(res - dpi) >= 5)
+						{
+							logLine[4] = QString::number(i);
+							logLine[5] = QString::number(res);
+							logLine[6] = tr("Wrong page resolution");
 
-						--count;
+							local.append(derror.arg(res).arg(i));
+							raport.append(logLine.join(fsep));
+						}
+
+						count = count - 1;
 					}
 				}
 				while (file.jumpToNextImage());
@@ -302,19 +402,36 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 				list.append(local);
 				syncl.unlock();
 			}
+
+			if (!raport.isEmpty())
+			{
+				syncl.lock();
+				logs.append(raport);
+				syncl.unlock();
+			}
 		}
 
 		progress();
 	});
 
+	if (!logs.isEmpty()) saveLogs("imageval", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level, int action, int col, const QString& path)
+QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level, int action, int col, const QString& path, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name")
+	};
+
 	QSet<QString> check, found;
 	QMutex sync, syncl;
-	QStringList list;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -334,7 +451,7 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 	};
 
 	if (action == 0 || action == 2) QtConcurrent::blockingMap(nodes,
-	[this, &nodes, &check, &list, &syncl, &progress, level, action]
+	[this, &nodes, &check, &list, &logs, &syncl, &progress, level, action]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -369,7 +486,14 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 
 			if (!local.isEmpty())
 			{
+				const QString logLine = QStringList(
+				{
+					n->info.absoluteFilePath(),
+					n->info.fileName()
+				}).join(fsep);
+
 				syncl.lock();
+				logs.append(logLine);
 				list.append(local);
 				syncl.unlock();
 			}
@@ -378,7 +502,7 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 		progress();
 	});
 	else if (action == 3 || action == 4) QtConcurrent::blockingMap(nodes,
-	[this, &check, &syncl, &progress, &list, level, action]
+	[this, &check, &list, &logs, &syncl, &progress, level, action]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return; bool ok = false;
@@ -404,7 +528,14 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 							  .arg(n->info.absoluteFilePath())
 							  .arg(n->level);
 
+			const QString logLine = QStringList(
+			{
+				n->info.absolutePath(),
+				n->info.fileName()
+			}).join(fsep);
+
 			syncl.lock();
+			logs.append(logLine);
 			list.append(local);
 			syncl.unlock();
 		}
@@ -437,19 +568,38 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 		list.append(nfMsg.arg(i));
 	}
 
+	if (logpath.isEmpty()) return list;
+
+	if (action == 1) for (const auto& i : check-found)
+		logs.append(QString("%2%1%3").arg(fsep)
+				  .arg(tr("Any dir at %1 level")
+					  .arg(level == -1 ?
+							  tr("any") :
+							  QString::number(level)))
+				  .arg(i));
+
+	if (!logs.isEmpty()) saveLogs("itemsval", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::validateTree(const Common::NODELIST& nodes, int format, int action, const QString& path)
+QStringList ThreadWorker::validateTree(const Common::NODELIST& nodes, int format, int action, const QString& path, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path")
+	};
 	const QString sep = format ? QString() : QString('/');
 
 	QHash<Common::NODE*, QStringList> missing;
 	QMutex sync, syncfg, syncfb;
-	QStringList list;
+	QStringList list, logs;
 
 	QSet<QString> check, foundg, foundb;
 	QString prefix;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -508,22 +658,34 @@ QStringList ThreadWorker::validateTree(const Common::NODELIST& nodes, int format
 	if (action == 0 || action == 2)
 		for (const auto& fn : check-foundg)
 		{
+			logs.append(fn);
 			list.append(missMsg.arg(fn));
 		}
 
 	if (action == 1)
 		for (const auto& fn : foundb)
 		{
+			logs.append(fn);
 			list.append(invMsg.arg(fn));
 		}
+
+	if (!logs.isEmpty()) saveLogs("treeval", logs);
 
 	return list;
 }
 
-QStringList ThreadWorker::validateTypes(const Common::NODELIST& nodes, int level, int action, const QStringList& filter)
+QStringList ThreadWorker::validateTypes(const Common::NODELIST& nodes, int level, int action, const QStringList& filter, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name"), tr("Extension")
+	};
+
 	QMutex sync, syncl;
-	QStringList list;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -535,7 +697,7 @@ QStringList ThreadWorker::validateTypes(const Common::NODELIST& nodes, int level
 	const QString msg = tr("Wrong file extension (%1) in: %2");
 
 	QtConcurrent::blockingMap(nodes,
-	[this, &list, &syncl, &progress, &filter, &msg, level, action]
+	[this, &list, &logs, &syncl, &progress, &filter, &msg, level, action]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -546,16 +708,20 @@ QStringList ThreadWorker::validateTypes(const Common::NODELIST& nodes, int level
 			const QString ext = n->info.suffix();
 
 			const bool match = filter.contains(ext);
+			const bool isWrong = (match && action == 1) ||
+							 (!match && action == 0);
 
-			if (match && action == 1)
+			if (isWrong)
 			{
+				const QString logLine = QStringList(
+				{
+					n->info.absolutePath(),
+					n->info.fileName(),
+					n->info.suffix()
+				}).join(fsep);
+
 				syncl.lock();
-				list.append(msg.arg(ext).arg(path));
-				syncl.unlock();
-			}
-			else if (!match && action == 0)
-			{
-				syncl.lock();
+				logs.append(logLine);
 				list.append(msg.arg(ext).arg(path));
 				syncl.unlock();
 			}
@@ -564,13 +730,23 @@ QStringList ThreadWorker::validateTypes(const Common::NODELIST& nodes, int level
 		progress();
 	});
 
+	if (!logs.isEmpty()) saveLogs("typesval", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::countDepth(const Common::NODELIST& nodes, int level)
+QStringList ThreadWorker::countDepth(const Common::NODELIST& nodes, int level, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name"), tr("Files"), tr("Directories"), tr("Depth")
+	};
+
 	QMutex sync, syncl;
-	QStringList list;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -602,7 +778,7 @@ QStringList ThreadWorker::countDepth(const Common::NODELIST& nodes, int level)
 	};
 
 	QtConcurrent::blockingMap(nodes,
-	[this, &list, &syncl, &progress, &countch, level]
+	[this, &list, &logs, &syncl, &progress, &countch, level]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -617,7 +793,17 @@ QStringList ThreadWorker::countDepth(const Common::NODELIST& nodes, int level)
 							.arg(tr("%n level(s)", nullptr, stat.value(2, 0) - n->level))
 							.arg(n->info.absoluteFilePath());
 
+			const QString logLine = QStringList(
+			{
+				n->info.absolutePath(),
+				n->info.fileName(),
+				QString::number(stat.value(0, 0)),
+				QString::number(stat.value(1, 0)),
+				QString::number(stat.value(2, 0) - n->level)
+			}).join(fsep);
+
 			syncl.lock();
+			logs.append(logLine);
 			list.append(msg);
 			syncl.unlock();
 		}
@@ -625,15 +811,25 @@ QStringList ThreadWorker::countDepth(const Common::NODELIST& nodes, int level)
 		progress();
 	});
 
+	if (!logs.isEmpty()) saveLogs("deeprap", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::countEmpty(const Common::NODELIST& nodes, int level, int action)
+QStringList ThreadWorker::countEmpty(const Common::NODELIST& nodes, int level, int action, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Level"), tr("Count")
+	};
+
 	QHash<int, int> counter;
 	QMutex sync, syncc;
-	QStringList list;
+	QStringList list, logs;
 	int total(0);
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -691,21 +887,37 @@ QStringList ThreadWorker::countEmpty(const Common::NODELIST& nodes, int level, i
 		}
 	else list.append(tr("%n empty directorie(s) in level %1", nullptr, counter.value(level)).arg(level));
 
+	for (auto i = counter.cbegin(); i != counter.cend(); ++i)
+	{
+		logs.append(QString("%2%1%3").arg(i.key()).arg(i.value()));
+	}
+
 	if (!total)
 	{
 		list.append(tr("No empty directories found"));
 	}
 
+	if (!logs.isEmpty()) saveLogs("emptyrap", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, int actions, const QStringList& filter)
+QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, int actions, const QStringList& filter, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name"), tr("Format"), tr("Quality (%)"), tr("Image size (B)"),
+		tr("Page no"), tr("Page size (B)"), tr("Resolution (DPI)"), tr("Width (px)"), tr("Heigth (px)")
+	};
+
 	QMap<Common::FORMAT, int> fcount;
 	QHash<int, int> dcount;
 	QMutex sync, syncf, syncd, syncc, synca;
-	QStringList list;
+	QStringList list, logs;
 	int count(0), call(0);
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -734,9 +946,9 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 		syncd.unlock();
 	};
 
-	const auto appendc = [&count, &syncc] (void) -> void
+	const auto appendc = [&logs, &count, &syncc] (const QString& l) -> void
 	{
-		syncc.lock(); ++count; syncc.unlock();
+		syncc.lock(); ++count; logs.append(l); syncc.unlock();
 	};
 
 	const auto appenda = [&call, &synca] (void) -> void
@@ -755,6 +967,14 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 		{
 			QImageReader file(n->info.absoluteFilePath());
 
+			QStringList logLine =
+			{
+				n->info.absolutePath(), n->info.fileName(), file.format(),
+				file.quality() == -1 ? QString() : QString::number(file.quality()),
+				QString::number(n->info.size()),
+				QString(), QString(), QString(), QString(), QString()
+			};
+
 			if (file.canRead())
 			{
 				auto count = file.imageCount();
@@ -763,9 +983,15 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 				{
 					const auto img = file.read(); --count;
 
+					logLine[5] = QString::number(file.currentImageNumber() + 1);
+					logLine[6] = QString::number(img.sizeInBytes());
+					logLine[7] = QString::number(Common::getDPI(img));
+					logLine[8] = QString::number(img.width());
+					logLine[9] = QString::number(img.height());
+
 					appendf(Common::getFormat(img));
 					appendd(Common::getDPI(img));
-					appendc();
+					appendc(logLine.join(fsep));
 				}
 				while (file.jumpToNextImage());
 			}
@@ -811,16 +1037,26 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 		list.append(tr("Didn't found any matching sheets"));
 	}
 
+	if (!logs.isEmpty()) saveLogs("imagerap", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::countItems(const Common::NODELIST& nodes, int level, int action, int col, const QString& path)
+QStringList ThreadWorker::countItems(const Common::NODELIST& nodes, int level, int action, int col, const QString& path, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Level"), tr("Files"), tr("Directories")
+	};
+
 	QHash<int, int> fcount, dcount;
 	QMutex sync, syncf, syncd, syncc;
-	int ftotal(0), dtotal(0);
 	QSet<QString> check;
-	QStringList list;
+	QStringList list, logs;
+	int ftotal(0), dtotal(0);
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -915,15 +1151,34 @@ QStringList ThreadWorker::countItems(const Common::NODELIST& nodes, int level, i
 								 tr("selected level")));
 	}
 
+	if (logpath.isEmpty()) return list;
+
+	for (const auto& k : (fcount.keys() + dcount.keys()).toSet())
+	{
+		logs.append(QString("%2%1%3%1%4").arg(fsep).arg(k)
+				  .arg(fcount.value(k, 0))
+				  .arg(dcount.value(k, 0)));
+	}
+
+	if (!logs.isEmpty()) saveLogs("itemsrap", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::countTypes(const Common::NODELIST& nodes, int level, const QStringList& filter)
+QStringList ThreadWorker::countTypes(const Common::NODELIST& nodes, int level, const QStringList& filter, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Level"), tr("Count")
+	};
+
 	QHash<int, int> fcount;
 	QMutex sync, syncf, syncd, syncc;
+	QStringList list, logs;
 	int ftotal(0);
-	QStringList list;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -978,14 +1233,33 @@ QStringList ThreadWorker::countTypes(const Common::NODELIST& nodes, int level, c
 								 tr("selected level")));
 	}
 
+	if (logpath.isEmpty()) return list;
+
+	for (auto i = fcount.cbegin(); i != fcount.cend(); ++i)
+	{
+		logs.append(QString("%2%1%3%1%4").arg(fsep)
+				  .arg(i.key())
+				  .arg(i.value()));
+	}
+
+	if (!logs.isEmpty()) saveLogs("typesrap", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::performRemove(const Common::NODELIST& nodes, int level, int action, int col, const QString& path)
+QStringList ThreadWorker::performRemove(const Common::NODELIST& nodes, int level, int action, int col, const QString& path, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name"), tr("Status")
+	};
+
 	QSet<QString> check;
 	QMutex sync, syncl;
-	QStringList list;
+	QStringList list, logs;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -1008,7 +1282,7 @@ QStringList ThreadWorker::performRemove(const Common::NODELIST& nodes, int level
 	const QString err = tr("Unable to remove object: %1");
 
 	QtConcurrent::blockingMap(nodes,
-	[this, &check, &list, &syncl, &progress, &msg, &err, level, action]
+	[this, &check, &list, &logs, &syncl, &progress, &msg, &err, level, action]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -1052,7 +1326,15 @@ QStringList ThreadWorker::performRemove(const Common::NODELIST& nodes, int level
 
 			const auto ms = rmok ? msg : err;
 
+			const QString logLine = QStringList(
+			{
+				n->info.absolutePath(),
+				n->info.fileName(),
+				rmok ? tr("Removed") : tr("Error")
+			}).join(fsep);
+
 			syncl.lock();
+			logs.append(logLine);
 			list.append(ms.arg(pt));
 			syncl.unlock();
 		}
@@ -1062,16 +1344,26 @@ QStringList ThreadWorker::performRemove(const Common::NODELIST& nodes, int level
 
 	if (list.isEmpty()) list.append(tr("No objects removed"));
 
+	if (!logs.isEmpty()) saveLogs("removejob", logs);
+
 	return list;
 }
 
-QStringList ThreadWorker::performCopy(const Common::NODELIST& nodes, int level, int action, int col, int format, const QString& path, const QString& dest)
+QStringList ThreadWorker::performCopy(const Common::NODELIST& nodes, int level, int action, int col, int format, const QString& path, const QString& dest, const QString& objDesc)
 {
+	const QStringList strHeader =
+	{
+		tr("Path"), tr("Name"), tr("Destination"), tr("Status")
+	};
+
 	Common::NODELIST found;
 	QSet<QString> check;
 	QMutex sync, syncf;
-	QStringList list;
+	QStringList list, logs;
 	QString root;
+
+	logs.append(tr("# %1").arg(objDesc));
+	logs.append(strHeader.join(fsep));
 
 	emit onJobStart(0, nodes.size()); int step(0);
 
@@ -1142,11 +1434,19 @@ QStringList ThreadWorker::performCopy(const Common::NODELIST& nodes, int level, 
 		QString fdir = i->info.absolutePath().remove(root);
 		QString fname = i->info.fileName();
 
+		QStringList logLine =
+		{
+			i->info.absolutePath(),
+			i->info.fileName(),
+			QString(), QString()
+		};
+
 		bool ok(false);
 
 		if (action == 0)
 		{
 			ok = Common::copyObject(fpath, dest + '/' + fname);
+			logLine[2] = dest + '/' + fname;
 		}
 		else if (action == 1)
 		{
@@ -1154,15 +1454,42 @@ QStringList ThreadWorker::performCopy(const Common::NODELIST& nodes, int level, 
 
 			ok = QDir(dest).mkpath(fdir);
 			ok = ok && Common::copyObject(fpath, dst);
+			logLine[2] = dst;
 		}
+
+		logLine[3] = ok ? tr("Copied") : tr("Error");
 
 		if (ok) list.append(msg.arg(fpath));
 		else list.append(err.arg(fpath));
+
+		logs.append(logLine.join(fsep));
 	}
 
 	if (list.isEmpty()) list.append(tr("No objects copied"));
 
+	if (!logs.isEmpty()) saveLogs("copyjob", logs);
+
 	return list;
+}
+
+QString ThreadWorker::getTimestamp(void)
+{
+	return QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss");
+}
+
+bool ThreadWorker::saveLogs(const QString& name, const QStringList& log)
+{
+	const QString fname = QString("%1/%2_%3.csv")
+					  .arg(logpath).arg(taskno)
+					  .arg(name.isEmpty() ? "task" : name);
+
+	QFile file(fname); QTextStream stream(&file);
+
+	if (!file.open(QFile::WriteOnly | QFile::Text)) return false;
+
+	for (const auto& l : log) stream << l << Qt::endl;
+
+	return true;
 }
 
 void ThreadWorker::start(void)
@@ -1198,11 +1525,19 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 
 	if (!logs.isEmpty() && QDir(logs).exists())
 	{
-		const QString now = QDateTime::currentDateTime()
-						.toString("dd.MM.yyyy hh.mm.ss");
+		const QString now = ThreadWorker::getTimestamp();
 
 		if (!QDir(logs).mkdir(now)) logpath = QString();
 		else logpath = logs + '/' + now;
+	}
+	else logpath = QString();
+
+	if (!logpath.isEmpty())
+	{
+		const QString msg = tr("Log directory: %1")
+						.arg(logpath);
+
+		emit onPartDone({ msg, sep });
 	}
 
 	for (const auto& r : rules) if (!isCanceled())
@@ -1230,14 +1565,16 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 			lines = validateDepth(nodes,
 				job.value("min").toInt(),
 				job.value("max").toInt(),
-				job.value("files").toInt());
+				job.value("files").toInt(),
+				jbrief);
 		}
 		else if (jname == "emptyval")
 		{
 			lines = validateEmpty(nodes,
 				job.value("level").toInt(),
 				job.value("action").toInt(),
-				job.value("objects").toInt());
+				job.value("objects").toInt(),
+				jbrief);
 		}
 		else if (jname == "imageval")
 		{
@@ -1245,7 +1582,8 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 				job.value("level").toInt(),
 				job.value("dpi").toInt(),
 				job.value("quality").toInt(),
-				job.value("filter").toStringList());
+				job.value("filter").toStringList(),
+				jbrief);
 		}
 		else if (jname == "itemsval")
 		{
@@ -1260,32 +1598,37 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 			lines = validateTree(nodes,
 				job.value("format").toInt(),
 				job.value("action").toInt(),
-				job.value("path").toString());
+				job.value("path").toString(),
+				jbrief);
 		}
 		else if (jname == "typesval")
 		{
 			lines = validateTypes(nodes,
 				job.value("level").toInt(),
 				job.value("action").toInt(),
-				job.value("filter").toStringList());
+				job.value("filter").toStringList(),
+				jbrief);
 		}
 		else if (jname == "deeprap")
 		{
 			lines = countDepth(nodes,
-				job.value("level").toInt());
+				job.value("level").toInt(),
+				jbrief);
 		}
 		else if (jname == "emptyrap")
 		{
 			lines = countEmpty(nodes,
 				job.value("level").toInt(),
-				job.value("action").toInt());
+				job.value("action").toInt(),
+				jbrief);
 		}
 		else if (jname == "imagerap")
 		{
 			lines = countImages(nodes,
 				job.value("level").toInt(),
 				job.value("actions").toInt(),
-				job.value("filter").toStringList());
+				job.value("filter").toStringList(),
+				jbrief);
 		}
 		else if (jname == "itemsrap")
 		{
@@ -1293,13 +1636,15 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 				job.value("level").toInt(),
 				job.value("action").toInt(),
 				job.value("column").toInt()-1,
-				job.value("path").toString());
+				job.value("path").toString(),
+				jbrief);
 		}
 		else if (jname == "typesrap")
 		{
 			lines = countTypes(nodes,
 				job.value("level").toInt(),
-				job.value("filter").toStringList());
+				job.value("filter").toStringList(),
+				jbrief);
 		}
 		else if (jname == "removejob")
 		{
@@ -1307,7 +1652,8 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 				job.value("level").toInt(),
 				job.value("action").toInt(),
 				job.value("column").toInt()-1,
-				job.value("path").toString());
+				job.value("path").toString(),
+				jbrief);
 		}
 		else if (jname == "copyjob")
 		{
@@ -1317,7 +1663,8 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 				job.value("column").toInt()-1,
 				job.value("format").toInt(),
 				job.value("path").toString(),
-				job.value("dest").toString());
+				job.value("dest").toString(),
+				jbrief);
 		}
 
 		if (!lines.isEmpty())
