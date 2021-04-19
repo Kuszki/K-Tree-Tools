@@ -224,7 +224,7 @@
   </action>
   <action name="actionLogs">
    <property name="icon">
-    <iconset theme="text-editor">
+    <iconset theme="accessories-text-editor">
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
