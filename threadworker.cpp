@@ -501,7 +501,7 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 
 		progress();
 	});
-	else if (action == 3 || action == 4) QtConcurrent::blockingMap(nodes,
+	else if (action == 3 || action == 4 || action == 5) QtConcurrent::blockingMap(nodes,
 	[this, &check, &list, &logs, &syncl, &progress, level, action]
 	(const auto& n) -> void
 	{
@@ -510,7 +510,7 @@ QStringList ThreadWorker::validateItems(const Common::NODELIST& nodes, int level
 		const bool fok = (action == 3) && n->info.isFile();
 		const bool dok = (action == 4) && n->info.isDir();
 
-		const bool typeok = fok || dok;
+		const bool typeok = fok || dok || (action == 5);
 
 		if (typeok && (level == -1 || n->level == level))
 			for (const auto& s : check)
@@ -1119,6 +1119,9 @@ QStringList ThreadWorker::countItems(const Common::NODELIST& nodes, int level, i
 			{
 				ok = !check.contains(nm);
 			}
+			else if (action == 3)
+				for (const auto& e : check)
+					ok = ok || QRegExp(e).exactMatch(nm);
 
 			if (ok)
 			{

@@ -186,7 +186,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     <message>
         <location filename="copyjobwidget.ui" line="76"/>
         <source>Regular expressions</source>
-        <translation>Wyrażenia reguralne</translation>
+        <translation>Wyrażenia regularne</translation>
     </message>
     <message>
         <location filename="copyjobwidget.ui" line="84"/>
@@ -573,7 +573,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     <message>
         <location filename="itemsrapwidget.ui" line="47"/>
         <source>Count any objects</source>
-        <translation>Zlicz dowolne obiekty</translation>
+        <translation>Zliczaj dowolne obiekty</translation>
     </message>
     <message>
         <location filename="itemsrapwidget.ui" line="52"/>
@@ -586,33 +586,38 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation>Wykluczaj obiekty z pliku</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.ui" line="65"/>
+        <location filename="itemsrapwidget.ui" line="62"/>
+        <source>Count by regular expression</source>
+        <translation>Zliczaj obiekty na podstawie wyrażenia</translation>
+    </message>
+    <message>
+        <location filename="itemsrapwidget.ui" line="70"/>
         <source>List source</source>
         <translation>Źródło listy</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.ui" line="80"/>
+        <location filename="itemsrapwidget.ui" line="85"/>
         <location filename="itemsrapwidget.cpp" line="132"/>
         <source>Select source file</source>
         <translation>Wybierz plik źródłowy</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.ui" line="87"/>
+        <location filename="itemsrapwidget.ui" line="92"/>
         <source>Open</source>
         <translation>Otwórz</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.ui" line="100"/>
+        <location filename="itemsrapwidget.ui" line="105"/>
         <source>Column</source>
         <translation>Kolumna</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.ui" line="120"/>
+        <location filename="itemsrapwidget.ui" line="125"/>
         <source>Level</source>
         <translation>Poziom</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.ui" line="130"/>
+        <location filename="itemsrapwidget.ui" line="135"/>
         <location filename="itemsrapwidget.cpp" line="80"/>
         <location filename="itemsrapwidget.cpp" line="87"/>
         <source>Any</source>
@@ -653,12 +658,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="itemsvalwidget.ui" line="47"/>
-        <source>Check files in all subdirectories</source>
+        <source>Check objects in all subdirectories</source>
+        <oldsource>Check files in all subdirectories</oldsource>
         <translation>Sprawdzaj obiekty we wszystkich podkatalogach</translation>
     </message>
     <message>
         <location filename="itemsvalwidget.ui" line="52"/>
-        <source>Check files in any subdirectories</source>
+        <source>Check objects in any subdirectories</source>
+        <oldsource>Check files in any subdirectories</oldsource>
         <translation>Sprawdzaj obiekty w dowolnych podkatalogach</translation>
     </message>
     <message>
@@ -670,41 +677,46 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     <message>
         <location filename="itemsvalwidget.ui" line="62"/>
         <source>Validate file names by regular expression</source>
-        <translation>Sprawdź nazwy plików na podstawie wyrażeń</translation>
+        <translation>Sprawdzaj nazwy plików na podstawie wyrażeń</translation>
     </message>
     <message>
         <location filename="itemsvalwidget.ui" line="67"/>
         <source>Validate dir names by regular expression</source>
-        <translation>Sprawdź nazwy katalogów na podstawie wyrażeń</translation>
+        <translation>Sprawdzaj nazwy katalogów na podstawie wyrażeń</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.ui" line="75"/>
+        <location filename="itemsvalwidget.ui" line="72"/>
+        <source>Validate object names by regular expression</source>
+        <translation>Sprawdzaj nazwy obiektów na podstawie wyrażeń</translation>
+    </message>
+    <message>
+        <location filename="itemsvalwidget.ui" line="80"/>
         <source>List source</source>
         <translation>Źródło listy</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.ui" line="90"/>
+        <location filename="itemsvalwidget.ui" line="95"/>
         <location filename="itemsvalwidget.cpp" line="111"/>
         <source>Select source file</source>
         <translation>Wybierz plik źródłowy</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.ui" line="97"/>
+        <location filename="itemsvalwidget.ui" line="102"/>
         <source>Open</source>
         <translation>Otwórz</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.ui" line="110"/>
+        <location filename="itemsvalwidget.ui" line="115"/>
         <source>Column</source>
         <translation>Kolumna</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.ui" line="130"/>
+        <location filename="itemsvalwidget.ui" line="135"/>
         <source>Level</source>
         <translation>Poziom</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.ui" line="140"/>
+        <location filename="itemsvalwidget.ui" line="145"/>
         <location filename="itemsvalwidget.cpp" line="76"/>
         <source>Any</source>
         <translation>Dowolny</translation>
@@ -1179,8 +1191,8 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <location filename="threadworker.cpp" line="681"/>
         <location filename="threadworker.cpp" line="742"/>
         <location filename="threadworker.cpp" line="909"/>
-        <location filename="threadworker.cpp" line="1254"/>
-        <location filename="threadworker.cpp" line="1356"/>
+        <location filename="threadworker.cpp" line="1257"/>
+        <location filename="threadworker.cpp" line="1359"/>
         <source>Name</source>
         <translation>Nazwa</translation>
     </message>
@@ -1267,8 +1279,8 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <location filename="threadworker.cpp" line="450"/>
         <location filename="threadworker.cpp" line="627"/>
         <location filename="threadworker.cpp" line="1075"/>
-        <location filename="threadworker.cpp" line="1278"/>
-        <location filename="threadworker.cpp" line="1382"/>
+        <location filename="threadworker.cpp" line="1281"/>
+        <location filename="threadworker.cpp" line="1385"/>
         <source>Unable to load list from file: %1</source>
         <translation>Brak możliwości wczytania listy z pliku: %1</translation>
     </message>
@@ -1366,14 +1378,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <location filename="threadworker.cpp" line="219"/>
         <location filename="threadworker.cpp" line="823"/>
         <location filename="threadworker.cpp" line="1049"/>
-        <location filename="threadworker.cpp" line="1172"/>
+        <location filename="threadworker.cpp" line="1175"/>
         <source>Level</source>
         <oldsource>Lavel</oldsource>
         <translation>Poziom</translation>
     </message>
     <message>
         <location filename="threadworker.cpp" line="823"/>
-        <location filename="threadworker.cpp" line="1172"/>
+        <location filename="threadworker.cpp" line="1175"/>
         <source>Count</source>
         <translation>Ilość</translation>
     </message>
@@ -1474,14 +1486,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation>Nie znaleziono żadnych arkuszy spełniających zadane kryteria</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1135"/>
+        <location filename="threadworker.cpp" line="1138"/>
         <source>Found %1 and %2 in level %3</source>
         <translation>Znaleziono %1 oraz %2 na poziomie %3</translation>
     </message>
     <message numerus="yes">
         <location filename="threadworker.cpp" line="791"/>
-        <location filename="threadworker.cpp" line="1136"/>
-        <location filename="threadworker.cpp" line="1148"/>
+        <location filename="threadworker.cpp" line="1139"/>
+        <location filename="threadworker.cpp" line="1151"/>
         <source>%n file(s)</source>
         <translation>
             <numerusform>%n plik</numerusform>
@@ -1498,8 +1510,8 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <location filename="threadworker.cpp" line="681"/>
         <location filename="threadworker.cpp" line="742"/>
         <location filename="threadworker.cpp" line="909"/>
-        <location filename="threadworker.cpp" line="1254"/>
-        <location filename="threadworker.cpp" line="1356"/>
+        <location filename="threadworker.cpp" line="1257"/>
+        <location filename="threadworker.cpp" line="1359"/>
         <source>Path</source>
         <translation>Ścieżka</translation>
     </message>
@@ -1520,16 +1532,16 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <location filename="threadworker.cpp" line="831"/>
         <location filename="threadworker.cpp" line="919"/>
         <location filename="threadworker.cpp" line="1058"/>
-        <location filename="threadworker.cpp" line="1180"/>
-        <location filename="threadworker.cpp" line="1261"/>
-        <location filename="threadworker.cpp" line="1365"/>
+        <location filename="threadworker.cpp" line="1183"/>
+        <location filename="threadworker.cpp" line="1264"/>
+        <location filename="threadworker.cpp" line="1368"/>
         <source># %1</source>
         <translation></translation>
     </message>
     <message numerus="yes">
         <location filename="threadworker.cpp" line="792"/>
-        <location filename="threadworker.cpp" line="1137"/>
-        <location filename="threadworker.cpp" line="1149"/>
+        <location filename="threadworker.cpp" line="1140"/>
+        <location filename="threadworker.cpp" line="1152"/>
         <source>%n directorie(s)</source>
         <translation>
             <numerusform>%n katalog</numerusform>
@@ -1538,37 +1550,37 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         </translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1143"/>
-        <location filename="threadworker.cpp" line="1226"/>
+        <location filename="threadworker.cpp" line="1146"/>
+        <location filename="threadworker.cpp" line="1229"/>
         <source>Didn&apos;t found any matching objects</source>
         <translation>Nie znaleziono żadnych obiektów spełniających zadane kryteria</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1147"/>
+        <location filename="threadworker.cpp" line="1150"/>
         <source>Found %1 and %2 in %3</source>
         <oldsource>Found %1 and %2 in selected %3</oldsource>
         <translation>Znaleziono %1 oraz %2 na %3</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1150"/>
-        <location filename="threadworker.cpp" line="1232"/>
+        <location filename="threadworker.cpp" line="1153"/>
+        <location filename="threadworker.cpp" line="1235"/>
         <source>selected levels</source>
         <translation>wybranych poziomach</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1151"/>
-        <location filename="threadworker.cpp" line="1233"/>
+        <location filename="threadworker.cpp" line="1154"/>
+        <location filename="threadworker.cpp" line="1236"/>
         <source>selected level</source>
         <translation>wybranym poziomie</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1219"/>
+        <location filename="threadworker.cpp" line="1222"/>
         <source>Found %1 in level %2</source>
         <translation>Znaleziono %1 na poziomie %2</translation>
     </message>
     <message numerus="yes">
-        <location filename="threadworker.cpp" line="1220"/>
-        <location filename="threadworker.cpp" line="1231"/>
+        <location filename="threadworker.cpp" line="1223"/>
+        <location filename="threadworker.cpp" line="1234"/>
         <source>%n object(s)</source>
         <translation>
             <numerusform>%n obiekt</numerusform>
@@ -1577,85 +1589,85 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         </translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1230"/>
+        <location filename="threadworker.cpp" line="1233"/>
         <source>Found %1 in %2</source>
         <oldsource>Found %1 in selected %2</oldsource>
         <translation>Znaleziono %1 na %2</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1254"/>
-        <location filename="threadworker.cpp" line="1356"/>
+        <location filename="threadworker.cpp" line="1257"/>
+        <location filename="threadworker.cpp" line="1359"/>
         <source>Status</source>
         <translation>Status</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1281"/>
+        <location filename="threadworker.cpp" line="1284"/>
         <source>Removed object: %1</source>
         <translation>Usunięto obiekt: %1</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1282"/>
+        <location filename="threadworker.cpp" line="1285"/>
         <source>Unable to remove object: %1</source>
         <translation>Brak możliwości usunięcia obiektu: %1</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1333"/>
+        <location filename="threadworker.cpp" line="1336"/>
         <source>Removed</source>
         <translation>Usunięto</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1333"/>
-        <location filename="threadworker.cpp" line="1460"/>
+        <location filename="threadworker.cpp" line="1336"/>
+        <location filename="threadworker.cpp" line="1463"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1345"/>
+        <location filename="threadworker.cpp" line="1348"/>
         <source>No objects removed</source>
         <translation>Nie usunięto żadnych obiektów</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1356"/>
+        <location filename="threadworker.cpp" line="1359"/>
         <source>Destination</source>
         <translation>Miejsce docelowe</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1428"/>
+        <location filename="threadworker.cpp" line="1431"/>
         <source>Copied object: %1</source>
         <translation>Skopiowano obiekt: %1</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1429"/>
+        <location filename="threadworker.cpp" line="1432"/>
         <source>Unable to copy object: %1</source>
         <translation>Brak możliwości skopiowania obiektu: %1</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1460"/>
+        <location filename="threadworker.cpp" line="1463"/>
         <source>Copied</source>
         <translation>Skopiowano</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1468"/>
+        <location filename="threadworker.cpp" line="1471"/>
         <source>No objects copied</source>
         <translation>Nie skopiowano żadnych obiektów</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1515"/>
+        <location filename="threadworker.cpp" line="1518"/>
         <source>Scanning directory tree</source>
         <translation>Skanowanie zawartości drzewa</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1518"/>
+        <location filename="threadworker.cpp" line="1521"/>
         <source>Job %1/%2: %3</source>
         <translation>Zadanie %1 z %2: %3</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1537"/>
+        <location filename="threadworker.cpp" line="1540"/>
         <source>Log directory: %1</source>
         <translation>Katalog dzienników: %1</translation>
     </message>
     <message>
-        <location filename="threadworker.cpp" line="1679"/>
+        <location filename="threadworker.cpp" line="1682"/>
         <source>Done</source>
         <translation>Wykonano zadania</translation>
     </message>
