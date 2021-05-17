@@ -323,7 +323,7 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 			const QString path = n->info.absoluteFilePath();
 
 			const QString ferror = tr("Unable to process image (%2): %1").arg(path);
-			const QString qerror = tr("Wrong quality (%2%) in image: %1").arg(path);
+			const QString qerror = tr("Wrong quality (%2%) in image (page %3): %1").arg(path);
 			const QString perror = tr("Unable to process image (%2) (page %3): %1").arg(path);
 			const QString derror = tr("Wrong resolution (%2 DPI) in image (page %3): %1").arg(path);
 			const QString ierror = tr("Unable to process %2 from %3: %1").arg(path);
@@ -351,22 +351,24 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 			}
 			catch (...) {}
 
-			for (const auto& img : imglist)
+			for (auto& img : imglist)
 			{
 				try
 				{
+					img.resolutionUnits(Magick::PixelsPerInchResolution);
+
 					const int res = (img.density().width() + img.density().height()) / 2;
 
-					logLine[2] = QString::fromStdString(img.format());
+					logLine[2] = QString::fromStdString(img.magick());
 					logLine[3] = QString::number(pnum);
 					logLine[4] = img.quality() ? QString::number(img.quality()) : QString();
 					logLine[5] = QString::number(res);
 
 					if (img.quality() > 0 && img.quality() < qual)
 					{
-						logLine[6] = tr("Too low image quality");
+						logLine[6] = tr("Too low page quality");
 
-						local.append(qerror.arg(img.quality()));
+						local.append(qerror.arg(img.quality()).arg(pnum));
 						raport.append(logLine.join(fsep));
 					}
 
@@ -913,8 +915,8 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 {
 	const QStringList strHeader =
 	{
-		tr("Path"), tr("Name"), tr("Format"), tr("Quality (%)"), tr("Image size (B)"),
-		tr("Page no"), tr("Page size (B)"), tr("Resolution (DPI)"), tr("Width (px)"), tr("Heigth (px)")
+		tr("Path"), tr("Name"), tr("Format"), tr("Image size (B)"), tr("Page no"),
+		tr("Resolution (DPI)"), tr("Quality (%)"), tr("Width (px)"), tr("Heigth (px)")
 	};
 
 	QMap<Common::FORMAT, int> fcount;
@@ -978,8 +980,9 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 			QStringList logLine =
 			{
 				n->info.absolutePath(), n->info.fileName(), n->info.suffix(),
-				QString(), QString::number(n->info.size()),
-				QString(), QString(), QString(), QString(), QString()
+				QString::number(n->info.size()),
+				QString(), QString(), QString(),
+				QString(), QString()
 			};
 
 			try
@@ -988,17 +991,20 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 			}
 			catch (...) {}
 
-			for (const auto& img : imglist)
+			for (auto& img : imglist)
 			{
 				try
 				{
+					img.resolutionUnits(Magick::PixelsPerInchResolution);
+
 					const int res = (img.density().width() + img.density().height()) / 2;
 
-					logLine[5] = QString::number(pnum);
-					logLine[6] = QString::number(img.fileSize());
-					logLine[7] = QString::number(res);
-					logLine[8] = QString::number(img.size().width());
-					logLine[9] = QString::number(img.size().height());
+					logLine[2] = QString::fromStdString(img.magick());
+					logLine[4] = QString::number(pnum);
+					logLine[5] = QString::number(res);
+					logLine[6] = img.quality() ? QString::number(img.quality()) : QString();
+					logLine[7] = QString::number(img.size().width());
+					logLine[8] = QString::number(img.size().height());
 
 					appendf(Common::getFormat(img.size().width(),
 										 img.size().height(),
