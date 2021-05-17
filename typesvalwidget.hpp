@@ -58,6 +58,10 @@ class TypesvalWidget : public AbstractWidget
 		virtual bool setData(const QVariantMap& data,
 						 bool force = false) override;
 
+	private slots:
+
+		void filterStringChanged(void);
+
 };
 
 #endif // TYPESVALWIDGET_HPP

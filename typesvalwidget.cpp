@@ -26,6 +26,11 @@ TypesvalWidget::TypesvalWidget(QWidget *parent, const QVariantMap& data)
 	, ui(new Ui::TypesvalWidget)
 {
 	ui->setupUi(this); setData(data);
+
+	filterStringChanged();
+
+	connect(ui->extEdit, &QLineEdit::textChanged,
+		   this, &TypesvalWidget::filterStringChanged);
 }
 
 TypesvalWidget::~TypesvalWidget(void)
@@ -91,4 +96,12 @@ bool TypesvalWidget::setData(const QVariantMap& data, bool force)
 	ui->extEdit->setText(data.value("filter").toStringList().join(", "));
 
 	return AbstractWidget::setData(data);
+}
+
+void TypesvalWidget::filterStringChanged(void)
+{
+	const bool ok = !getSelectedExtensions().isEmpty();
+	ui->extLabel->setStyleSheet(!ok ? wrongstyle : QString());
+
+	emit onValidChanged(ok);
 }

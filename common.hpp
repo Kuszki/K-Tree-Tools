@@ -68,4 +68,10 @@ namespace Common
 
 }
 
+template<class Number>
+bool Common::numEq(const Number& a, const Number& b, const Number& d)
+{
+	return qAbs(a - b) <= d;
+}
+
 #endif // COMMON_HPP

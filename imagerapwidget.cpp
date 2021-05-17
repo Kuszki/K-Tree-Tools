@@ -21,14 +21,13 @@
 #include "imagerapwidget.hpp"
 #include "ui_imagerapwidget.h"
 
-ImagerapWidget::ImagerapWidget(QWidget *parent, const QVariantMap& data) :
-	AbstractWidget("imagerap", parent, false),
-	ui(new Ui::ImagerapWidget)
+ImagerapWidget::ImagerapWidget(QWidget *parent, const QVariantMap& data)
+	: AbstractWidget("imagerap", parent, false)
+	, ui(new Ui::ImagerapWidget)
 {
 	ui->setupUi(this); setData(data); int index(0);
 
-	auto fmodel = new QStandardItemModel(0, 1, this);
-	auto fitem = new QStandardItem(tr("All supported formats"));
+	filterStringChanged();
 
 	auto amodel = new QStandardItemModel(0, 1, this);
 	auto aitem = new QStandardItem(tr("All raports"));
@@ -39,17 +38,6 @@ ImagerapWidget::ImagerapWidget(QWidget *parent, const QVariantMap& data) :
 		tr("Count sheets by size"),
 		tr("Count sheets by resolution")
 	};
-
-	for (const auto& f : ImagerapWidget::getSupportedFormats())
-	{
-		auto format = new QStandardItem(f);
-
-		format->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		format->setCheckState(Qt::Unchecked);
-		format->setData(f);
-
-		fmodel->appendRow(format);
-	}
 
 	for (const auto& f : actions)
 	{
@@ -62,22 +50,15 @@ ImagerapWidget::ImagerapWidget(QWidget *parent, const QVariantMap& data) :
 		amodel->appendRow(format);
 	}
 
-	fmodel->sort(0);
-	fitem->setFlags(Qt::ItemIsEnabled);
-	fmodel->insertRow(0, fitem);
-
 	amodel->sort(0);
 	aitem->setFlags(Qt::ItemIsEnabled);
 	amodel->insertRow(0, aitem);
 
-	ui->formatCombo->model()->deleteLater();
-	ui->formatCombo->setModel(fmodel);
-
 	ui->actionCombo->model()->deleteLater();
 	ui->actionCombo->setModel(amodel);
 
-	connect(fmodel, &QStandardItemModel::itemChanged,
-		   this, &ImagerapWidget::formatDataChanged);
+	connect(ui->extEdit, &QLineEdit::textChanged,
+		   this, &ImagerapWidget::filterStringChanged);
 
 	connect(amodel, &QStandardItemModel::itemChanged,
 		   this, &ImagerapWidget::actionDataChanged);
@@ -148,17 +129,11 @@ int ImagerapWidget::getSelectedActions(void) const
 
 QStringList ImagerapWidget::getSelectedFormats(void) const
 {
-	auto M = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
+	auto text = ui->extEdit->text()
+			  .replace(';', ',')
+			  .replace(' ', ',');
 
-	QStringList checked;
-
-	for (int i = 1; i < M->rowCount(); ++i)
-		if (M->item(i)->checkState() == Qt::Checked)
-		{
-			checked << M->item(i)->data().toString();
-		}
-
-	return checked;
+	return text.split(',', Qt::SkipEmptyParts);
 }
 
 QStringList ImagerapWidget::getSupportedFormats(void)
@@ -175,22 +150,15 @@ bool ImagerapWidget::setData(const QVariantMap& data, bool force)
 {
 	if (!force && (data.isEmpty() || !validateData(data))) return false;
 
-	auto M1 = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
-	const auto list1 = data.value("filter").toStringList();
+	ui->extEdit->setText(data.value("filter").toStringList().join(", "));
 
-	for (int i = 1; i < M1->rowCount(); ++i)
-	{
-		const bool ok = list1.contains(M1->item(i)->data().toString());
-		M1->item(i)->setCheckState(ok ? Qt::Checked : Qt::Unchecked);
-	}
-
-	auto M2 = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
+	auto M = dynamic_cast<QStandardItemModel*>(ui->actionCombo->model());
 	const auto list = data.value("actions").toInt();
 
-	for (int i = 1; i < M2->rowCount(); ++i)
+	for (int i = 1; i < M->rowCount(); ++i)
 	{
 		const bool ok = list & (1 << (i-1));
-		M2->item(i)->setCheckState(ok ? Qt::Checked : Qt::Unchecked);
+		M->item(i)->setCheckState(ok ? Qt::Checked : Qt::Unchecked);
 	}
 
 	return AbstractWidget::setData(data);
@@ -209,16 +177,10 @@ void ImagerapWidget::actionDataChanged(QStandardItem* item)
 	else M->item(0)->setText(tr("All raports"));
 }
 
-void ImagerapWidget::formatDataChanged(QStandardItem* item)
+void ImagerapWidget::filterStringChanged(void)
 {
-	auto M = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
-	if (item == M->item(0)) return;
+	const bool ok = !getSelectedFormats().isEmpty();
+	ui->extLabel->setStyleSheet(!ok ? wrongstyle : QString());
 
-	const auto all = getSupportedFormats();
-	const auto list = getSelectedFormats();
-
-	const bool same = all.toSet() == list.toSet();
-
-	if (!list.isEmpty() && !same) M->item(0)->setText(list.join(", "));
-	else M->item(0)->setText(tr("All supported formats"));
+	emit onValidChanged(ok);
 }

@@ -6,9 +6,14 @@
 
 #include "common.hpp"
 
+#include <iostream>
+using namespace Magick;
+using namespace std;
+
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
+	Magick::InitializeMagick(*argv);
 
 	qRegisterMetaType<Common::NODELIST>("Common::NOODELIST");
 

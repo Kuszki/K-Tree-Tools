@@ -64,7 +64,7 @@ class ImagerapWidget : public AbstractWidget
 	private slots:
 
 		void actionDataChanged(QStandardItem* item);
-		void formatDataChanged(QStandardItem* item);
+		void filterStringChanged(void);
 };
 
 #endif // IMAGERAPWIDGET_HPP

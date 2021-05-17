@@ -60,7 +60,7 @@ class TypesrapWidget : public AbstractWidget
 
 	private slots:
 
-		void filterStringChanged(const QString& exts);
+		void filterStringChanged(void);
 
 };
 

@@ -295,7 +295,7 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 {
 	const QStringList strHeader =
 	{
-		tr("Path"), tr("Name"), tr("Format"), tr("Quality"), tr("Page"), tr("Resolution"), tr("Comment")
+		tr("Path"), tr("Name"), tr("Format"), tr("Page"), tr("Quality"), tr("Resolution"), tr("Comment")
 	};
 
 	QMutex sync, syncl;
@@ -328,73 +328,80 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 			const QString derror = tr("Wrong resolution (%2 DPI) in image (page %3): %1").arg(path);
 			const QString ierror = tr("Unable to process %2 from %3: %1").arg(path);
 
-			QImageReader file(path);
-			QStringList local, raport;
-
 			QStringList logLine =
 			{
-				n->info.absolutePath(), n->info.fileName(), file.format(),
-				file.quality() == -1 ? QString() : QString::number(file.quality()),
-				QString(), QString(), QString()
+				n->info.absolutePath(), n->info.fileName(), n->info.suffix(),
+				QString(), QString(), QString(), QString()
 			};
 
-			if (!file.canRead())
+			QStringList local, raport;
+			std::list<Magick::Image> imglist;
+			int pnum(1), pdone(0);
+
+			try
+			{
+				Magick::readImages(&imglist, path.toStdString());
+			}
+			catch (Magick::Exception& e)
 			{
 				logLine[6] = tr("Unable to process image");
 
-				local.append(ferror.arg(file.errorString()));
+				local.append(ferror.arg(e.what()));
 				raport.append(logLine.join(fsep));
 			}
-			else
+			catch (...) {}
+
+			for (const auto& img : imglist)
 			{
-				if (file.quality() != -1 && file.quality() < qual)
+				try
 				{
-					logLine[6] = tr("Too low image quality");
+					const int res = (img.density().width() + img.density().height()) / 2;
 
-					local.append(qerror.arg(file.quality()));
-					raport.append(logLine.join(fsep));
-				}
+					logLine[2] = QString::fromStdString(img.format());
+					logLine[3] = QString::number(pnum);
+					logLine[4] = img.quality() ? QString::number(img.quality()) : QString();
+					logLine[5] = QString::number(res);
 
-				const auto total = file.imageCount();
-				auto count = total;
-
-				int i(0); do
-				{
-					const auto img = file.read(); ++i;
-
-					if (img.isNull())
+					if (img.quality() > 0 && img.quality() < qual)
 					{
-						logLine[4] = QString::number(i);
-						logLine[5] = QString();
-						logLine[6] = tr("Unable to process page");
+						logLine[6] = tr("Too low image quality");
 
-						local.append(perror
-								   .arg(file.errorString())
-								   .arg(i));
+						local.append(qerror.arg(img.quality()));
 						raport.append(logLine.join(fsep));
 					}
-					else
+
+					if (qAbs(res - dpi) >= 5)
 					{
-						const int res = Common::getDPI(img);
+						logLine[6] = tr("Wrong page resolution");
 
-						if (qAbs(res - dpi) >= 5)
-						{
-							logLine[4] = QString::number(i);
-							logLine[5] = QString::number(res);
-							logLine[6] = tr("Wrong page resolution");
-
-							local.append(derror.arg(res).arg(i));
-							raport.append(logLine.join(fsep));
-						}
-
-						count = count - 1;
+						local.append(derror.arg(res).arg(pnum));
+						raport.append(logLine.join(fsep));
 					}
-				}
-				while (file.jumpToNextImage());
 
-				if (count && (total != -1)) local.append(ierror.arg(count)
-							   .arg(tr("%n image page(s)", nullptr, total)));
+					pdone = pdone + 1;
+				}
+				catch (Magick::Exception& e)
+				{
+					logLine[3] = QString::number(pnum);
+					logLine[4] = QString();
+					logLine[5] = QString();
+					logLine[6] = tr("Unable to process page");
+
+					local.append(perror
+							   .arg(e.what())
+							   .arg(pnum));
+					raport.append(logLine.join(fsep));
+				}
+				catch (...) {}
+
+				pnum = pnum + 1;
 			}
+
+			const auto pmiss = pdone - imglist.size();
+
+			if (pmiss) local.append(ierror
+							    .arg(pmiss)
+							    .arg(tr("%n image page(s)", nullptr, imglist.size())));
 
 			if (!local.isEmpty())
 			{
@@ -965,35 +972,43 @@ QStringList ThreadWorker::countImages(const Common::NODELIST& nodes, int level, 
 		if (n->info.isFile() && (level == -1 || n->level == level) &&
 		    filter.contains(n->info.suffix(), Qt::CaseInsensitive))
 		{
-			QImageReader file(n->info.absoluteFilePath());
+			std::list<Magick::Image> imglist;
+			int pnum(1);
 
 			QStringList logLine =
 			{
-				n->info.absolutePath(), n->info.fileName(), file.format(),
-				file.quality() == -1 ? QString() : QString::number(file.quality()),
-				QString::number(n->info.size()),
+				n->info.absolutePath(), n->info.fileName(), n->info.suffix(),
+				QString(), QString::number(n->info.size()),
 				QString(), QString(), QString(), QString(), QString()
 			};
 
-			if (file.canRead())
+			try
 			{
-				auto count = file.imageCount();
+				Magick::readImages(&imglist, n->info.absoluteFilePath().toStdString());
+			}
+			catch (...) {}
 
-				do
+			for (const auto& img : imglist)
+			{
+				try
 				{
-					const auto img = file.read(); --count;
+					const int res = (img.density().width() + img.density().height()) / 2;
 
-					logLine[5] = QString::number(file.currentImageNumber() + 1);
-					logLine[6] = QString::number(img.sizeInBytes());
-					logLine[7] = QString::number(Common::getDPI(img));
-					logLine[8] = QString::number(img.width());
-					logLine[9] = QString::number(img.height());
+					logLine[5] = QString::number(pnum);
+					logLine[6] = QString::number(img.fileSize());
+					logLine[7] = QString::number(res);
+					logLine[8] = QString::number(img.size().width());
+					logLine[9] = QString::number(img.size().height());
 
-					appendf(Common::getFormat(img));
-					appendd(Common::getDPI(img));
+					appendf(Common::getFormat(img.size().width(),
+										 img.size().height(),
+										 int(double(100*res) / 2.54)));
+					appendd(res);
 					appendc(logLine.join(fsep));
 				}
-				while (file.jumpToNextImage());
+				catch (...) {}
+
+				pnum = pnum + 1;
 			}
 
 			appenda();

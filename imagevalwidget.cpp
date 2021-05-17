@@ -27,29 +27,10 @@ ImagevalWidget::ImagevalWidget(QWidget *parent, const QVariantMap& data)
 {
 	ui->setupUi(this); setData(data);
 
-	auto model = new QStandardItemModel(0, 1, this);
-	auto item = new QStandardItem(tr("All supported formats"));
+	filterStringChanged();
 
-	for (const auto& f : ImagevalWidget::getSupportedFormats())
-	{
-		auto format = new QStandardItem(f);
-
-		format->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-		format->setCheckState(Qt::Unchecked);
-		format->setData(f);
-
-		model->appendRow(format);
-	}
-
-	model->sort(0);
-	item->setFlags(Qt::ItemIsEnabled);
-	model->insertRow(0, item);
-
-	ui->formatCombo->model()->deleteLater();
-	ui->formatCombo->setModel(model);
-
-	connect(model, &QStandardItemModel::itemChanged,
-		   this, &ImagevalWidget::formatDataChanged);
+	connect(ui->extEdit, &QLineEdit::textChanged,
+		   this, &ImagevalWidget::filterStringChanged);
 }
 
 ImagevalWidget::~ImagevalWidget(void)
@@ -107,17 +88,11 @@ QString ImagevalWidget::getJobnameString(void) const
 
 QStringList ImagevalWidget::getSelectedFormats(void) const
 {
-	auto M = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
+	auto text = ui->extEdit->text()
+			  .replace(';', ',')
+			  .replace(' ', ',');
 
-	QStringList checked;
-
-	for (int i = 1; i < M->rowCount(); ++i)
-		if (M->item(i)->checkState() == Qt::Checked)
-		{
-			checked << M->item(i)->data().toString();
-		}
-
-	return checked;
+	return text.split(',', Qt::SkipEmptyParts);
 }
 
 QStringList ImagevalWidget::getSupportedFormats(void)
@@ -136,29 +111,15 @@ bool ImagevalWidget::setData(const QVariantMap& data, bool force)
 
 	ui->dpiSpin->setValue(data.value("dpi").toInt());
 	ui->qualSpin->setValue(data.value("quality").toInt());
-
-	auto M = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
-	const auto list = data.value("filter").toStringList();
-
-	for (int i = 1; i < M->rowCount(); ++i)
-	{
-		const bool ok = list.contains(M->item(i)->data().toString());
-		M->item(i)->setCheckState(ok ? Qt::Checked : Qt::Unchecked);
-	}
+	ui->extEdit->setText(data.value("filter").toStringList().join(", "));
 
 	return AbstractWidget::setData(data);
 }
 
-void ImagevalWidget::formatDataChanged(QStandardItem* item)
+void ImagevalWidget::filterStringChanged(void)
 {
-	auto M = dynamic_cast<QStandardItemModel*>(ui->formatCombo->model());
-	if (item == M->item(0)) return;
+	const bool ok = !getSelectedFormats().isEmpty();
+	ui->extLabel->setStyleSheet(!ok ? wrongstyle : QString());
 
-	const auto all = getSupportedFormats();
-	const auto list = getSelectedFormats();
-
-	const bool same = all.toSet() == list.toSet();
-
-	if (!list.isEmpty() && !same) M->item(0)->setText(list.join(", "));
-	else M->item(0)->setText(tr("All supported formats"));
+	emit onValidChanged(ok);
 }

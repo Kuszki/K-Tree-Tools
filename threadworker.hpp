@@ -25,6 +25,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include <Magick++.h>
+
 #include "common.hpp"
 
 class ThreadWorker : public QObject

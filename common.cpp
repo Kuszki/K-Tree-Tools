@@ -57,12 +57,6 @@ int Common::getDPI(const QImage& img)
 				img.dotsPerMeterY()));
 }
 
-template<class Number>
-bool Common::numEq(const Number& a, const Number& b, const Number& d)
-{
-	return qAbs(a - b) <= d;
-}
-
 QString Common::getFormat(Common::FORMAT f)
 {
 	switch (f)

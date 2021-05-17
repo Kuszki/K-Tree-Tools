@@ -27,7 +27,7 @@ TypesrapWidget::TypesrapWidget(QWidget *parent, const QVariantMap& data)
 {
 	ui->setupUi(this); setData(data);
 
-	filterStringChanged(ui->extEdit->text());
+	filterStringChanged();
 
 	connect(ui->extEdit, &QLineEdit::textChanged,
 		   this, &TypesrapWidget::filterStringChanged);
@@ -93,9 +93,9 @@ bool TypesrapWidget::setData(const QVariantMap& data, bool force)
 	return AbstractWidget::setData(data);
 }
 
-void TypesrapWidget::filterStringChanged(const QString& exts)
+void TypesrapWidget::filterStringChanged(void)
 {
-	const bool ok = !exts.isEmpty();
+	const bool ok = !getSelectedExtensions().isEmpty();
 	ui->extLabel->setStyleSheet(!ok ? wrongstyle : QString());
 
 	emit onValidChanged(ok);

@@ -31,17 +31,14 @@
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
    <item row="0" column="0">
-    <widget class="QLabel" name="formatLabel">
+    <widget class="QLabel" name="extLabel">
      <property name="text">
       <string>Image formats</string>
      </property>
      <property name="buddy">
-      <cstring>formatCombo</cstring>
+      <cstring>extEdit</cstring>
      </property>
     </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="formatCombo"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="dpiLabel">
@@ -121,10 +118,17 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="extEdit">
+     <property name="placeholderText">
+      <string>Comma separated extensions</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>formatCombo</tabstop>
+  <tabstop>extEdit</tabstop>
   <tabstop>dpiSpin</tabstop>
   <tabstop>qualSpin</tabstop>
   <tabstop>levelSpin</tabstop>

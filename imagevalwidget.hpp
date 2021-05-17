@@ -61,7 +61,7 @@ class ImagevalWidget : public AbstractWidget
 
 	private slots:
 
-		void formatDataChanged(QStandardItem* item);
+		void filterStringChanged(void);
 
 };
 

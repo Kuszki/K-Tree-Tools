@@ -85,3 +85,12 @@ TRANSLATIONS += \
 
 RESOURCES += \
 	resources.qrc
+
+INCLUDEPATH += \
+	/usr/include/ImageMagick-6 \
+	/usr/include/x86_64-linux-gnu/ImageMagick-6/
+
+LIBS += \
+	/usr/lib/x86_64-linux-gnu/libMagick++-6.Q16.so \
+	/usr/lib/x86_64-linux-gnu/libMagickCore-6.Q16.so
+
