@@ -28,9 +28,16 @@ ImagevalWidget::ImagevalWidget(QWidget *parent, const QVariantMap& data)
 	ui->setupUi(this); setData(data);
 
 	filterStringChanged();
+	spinValueChanged();
 
 	connect(ui->extEdit, &QLineEdit::textChanged,
 		   this, &ImagevalWidget::filterStringChanged);
+
+	connect(ui->minqualSpin, qOverload<int>(&QSpinBox::valueChanged),
+		   this, &ImagevalWidget::spinValueChanged);
+
+	connect(ui->maxqualSpin, qOverload<int>(&QSpinBox::valueChanged),
+		   this, &ImagevalWidget::spinValueChanged);
 }
 
 ImagevalWidget::~ImagevalWidget(void)
@@ -43,13 +50,11 @@ QVariantMap ImagevalWidget::getData(void) const
 	auto formats = getSelectedFormats();
 	auto base = AbstractWidget::getData();
 
-	if (formats.isEmpty())
-		formats = ImagevalWidget::getSupportedFormats();
-
 	base.insert(
 	{
 		{ "dpi", ui->dpiSpin->value() },
-		{ "quality", ui->qualSpin->value() },
+		{ "minquality", ui->minqualSpin->value() },
+		{ "maxquality", ui->maxqualSpin->value() },
 		{ "filter", formats },
 		{ "level", ui->levelSpin->value() }
 	});
@@ -62,10 +67,13 @@ bool ImagevalWidget::validateData(const QVariantMap& data) const
 	return AbstractWidget::validateData(data) &&
 			data.value("dpi").toInt() >= ui->dpiSpin->minimum() &&
 			data.value("dpi").toInt() <= ui->dpiSpin->maximum() &&
-			data.value("quality").toInt() >= ui->qualSpin->minimum() &&
-			data.value("quality").toInt() <= ui->qualSpin->maximum() &&
+			data.value("minquality").toInt() >= ui->minqualSpin->minimum() &&
+			data.value("minquality").toInt() <= ui->minqualSpin->maximum() &&
+			data.value("maxquality").toInt() >= ui->maxqualSpin->minimum() &&
+			data.value("maxquality").toInt() <= ui->maxqualSpin->maximum() &&
 			data.value("level").toInt() >= ui->levelSpin->minimum() &&
-			data.value("level").toInt() <= ui->levelSpin->maximum();
+			data.value("level").toInt() <= ui->levelSpin->maximum() &&
+			!data.value("filter").toStringList().isEmpty();
 }
 
 QString ImagevalWidget::getDescriptionString(void) const
@@ -73,10 +81,11 @@ QString ImagevalWidget::getDescriptionString(void) const
 	const auto formats = getSelectedFormats().join(", ");
 	const auto lvl = ui->levelSpin->value();
 
-	return tr("%5 (level: %1, dpi: %2, quality: %3, formats: '%4')")
+	return tr("%6 (level: %1, dpi: %2, quality: <%3; %4>, formats: '%5')")
 			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
 			.arg(ui->dpiSpin->value())
-			.arg(ui->qualSpin->value())
+			.arg(ui->minqualSpin->value())
+			.arg(ui->maxqualSpin->value())
 			.arg(formats.isEmpty() ? tr("All supported formats") : formats)
 			.arg(getJobnameString());
 }
@@ -90,9 +99,12 @@ QStringList ImagevalWidget::getSelectedFormats(void) const
 {
 	auto text = ui->extEdit->text()
 			  .replace(';', ',')
-			  .replace(' ', ',');
+			  .replace(' ', ',')
+			  .split(',', Qt::SkipEmptyParts);
 
-	return text.split(',', Qt::SkipEmptyParts);
+	text.removeDuplicates();
+
+	return text;
 }
 
 QStringList ImagevalWidget::getSupportedFormats(void)
@@ -110,7 +122,8 @@ bool ImagevalWidget::setData(const QVariantMap& data, bool force)
 	if (!force && (data.isEmpty() || !validateData(data))) return false;
 
 	ui->dpiSpin->setValue(data.value("dpi").toInt());
-	ui->qualSpin->setValue(data.value("quality").toInt());
+	ui->minqualSpin->setValue(data.value("minquality").toInt());
+	ui->maxqualSpin->setValue(data.value("maxquality").toInt());
 	ui->extEdit->setText(data.value("filter").toStringList().join(", "));
 
 	return AbstractWidget::setData(data);
@@ -122,4 +135,10 @@ void ImagevalWidget::filterStringChanged(void)
 	ui->extLabel->setStyleSheet(!ok ? wrongstyle : QString());
 
 	emit onValidChanged(ok);
+}
+
+void ImagevalWidget::spinValueChanged(void)
+{
+	ui->maxqualSpin->setMinimum(ui->minqualSpin->value());
+	ui->minqualSpin->setMaximum(ui->maxqualSpin->value());
 }

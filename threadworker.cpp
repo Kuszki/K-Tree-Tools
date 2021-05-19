@@ -291,7 +291,7 @@ QStringList ThreadWorker::validateEmpty(const Common::NODELIST& nodes, int level
 	return list;
 }
 
-QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int level, int dpi, int qual, const QStringList& filter, const QString& objDesc)
+QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int level, int dpi, int minqual, int maxqual, const QStringList& filter, const QString& objDesc)
 {
 	const QStringList strHeader =
 	{
@@ -312,7 +312,7 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 	};
 
 	QtConcurrent::blockingMap(nodes,
-	[this, &list, &logs, &syncl, &progress, &filter, level, dpi, qual]
+	[this, &list, &logs, &syncl, &progress, &filter, level, dpi, minqual, maxqual]
 	(const auto& n) -> void
 	{
 		if (isCanceled()) return;
@@ -364,15 +364,17 @@ QStringList ThreadWorker::validateImages(const Common::NODELIST& nodes, int leve
 					logLine[4] = img.quality() ? QString::number(img.quality()) : QString();
 					logLine[5] = QString::number(res);
 
-					if (img.quality() > 0 && img.quality() < qual)
+					if (img.quality() > 0 &&
+					    (img.quality() < minqual ||
+						img.quality() > maxqual))
 					{
-						logLine[6] = tr("Too low page quality");
+						logLine[6] = tr("Wrong page quality");
 
 						local.append(qerror.arg(img.quality()).arg(pnum));
 						raport.append(logLine.join(fsep));
 					}
 
-					if (qAbs(res - dpi) >= 5)
+					if (dpi && qAbs(res - dpi) >= 5)
 					{
 						logLine[6] = tr("Wrong page resolution");
 
@@ -1605,7 +1607,8 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 			lines = validateImages(nodes,
 				job.value("level").toInt(),
 				job.value("dpi").toInt(),
-				job.value("quality").toInt(),
+				job.value("minquality").toInt(),
+				job.value("maxquality").toInt(),
 				job.value("filter").toStringList(),
 				jbrief);
 		}
@@ -1699,6 +1702,8 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 			list.append(lines);
 		}
 	}
+
+	if (!logs.isEmpty()) saveLogs("summary", list);
 
 	emit onJobChange({ tr("Done") });
 	emit onJobDone(list);

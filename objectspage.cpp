@@ -18,52 +18,24 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef IMAGEVALWIDGET_HPP
-#define IMAGEVALWIDGET_HPP
+#include "objectspage.hpp"
+#include "ui_objectspage.h"
 
-#include <QtWidgets>
-#include <QtCore>
-#include <QtGui>
-
-#include "abstractwidget.hpp"
-
-namespace Ui {	class ImagevalWidget; }
-
-class ImagevalWidget : public AbstractWidget
+ObjectsPage::ObjectsPage(QWidget *parent)
+	: QWizardPage(parent)
+	, ui(new Ui::ObjectsPage)
 {
+	ui->setupUi(this);
 
-		Q_OBJECT
+	registerField("objext", ui->extEdit, "plainText");
+	registerField("chempt", ui->emptyCheck);
+}
 
-	private:
+ObjectsPage::~ObjectsPage(void)
+{
+	delete ui;
+}
 
-		Ui::ImagevalWidget *ui;
+void ObjectsPage::initializePage(void) {}
 
-	public:
-
-		explicit ImagevalWidget(QWidget *parent = nullptr,
-						    const QVariantMap& data = QVariantMap());
-		virtual ~ImagevalWidget(void) override;
-
-		virtual QVariantMap getData(void) const override;
-
-		virtual bool validateData(const QVariantMap& data) const override;
-
-		virtual QString getDescriptionString(void) const override;
-		virtual QString getJobnameString(void) const override;
-
-		QStringList getSelectedFormats(void) const;
-		static QStringList getSupportedFormats(void);
-
-	public slots:
-
-		virtual bool setData(const QVariantMap& data,
-						 bool force = false) override;
-
-	private slots:
-
-		void filterStringChanged(void);
-		void spinValueChanged(void);
-
-};
-
-#endif // IMAGEVALWIDGET_HPP
+void ObjectsPage::cleanupPage(void) {}

@@ -78,9 +78,12 @@ QStringList TypesrapWidget::getSelectedExtensions(void) const
 {
 	auto text = ui->extEdit->text()
 			  .replace(';', ',')
-			  .replace(' ', ',');
+			  .replace(' ', ',')
+			  .split(',', Qt::SkipEmptyParts);
 
-	return text.split(',', Qt::SkipEmptyParts);
+	text.removeDuplicates();
+
+	return text;
 }
 
 bool TypesrapWidget::setData(const QVariantMap& data, bool force)

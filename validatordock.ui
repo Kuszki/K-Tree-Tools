@@ -112,6 +112,13 @@
    </layout>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>addButton</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>loadButton</tabstop>
+  <tabstop>runButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

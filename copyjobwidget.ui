@@ -181,7 +181,7 @@
    <item row="5" column="1">
     <widget class="QSpinBox" name="levelSpin">
      <property name="specialValueText">
-      <string>Any</string>
+      <string comment="level">Any</string>
      </property>
      <property name="minimum">
       <number>-1</number>
@@ -198,12 +198,13 @@
  </widget>
  <tabstops>
   <tabstop>actionCombo</tabstop>
+  <tabstop>formatCombo</tabstop>
+  <tabstop>dstpathEdit</tabstop>
+  <tabstop>dstpathButton</tabstop>
   <tabstop>srcpathEdit</tabstop>
   <tabstop>srcpathButton</tabstop>
   <tabstop>columnSpin</tabstop>
   <tabstop>levelSpin</tabstop>
-  <tabstop>dstpathEdit</tabstop>
-  <tabstop>dstpathButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

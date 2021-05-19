@@ -76,9 +76,6 @@ QVariantMap ImagerapWidget::getData(void) const
 	auto formats = getSelectedFormats();
 	auto base = AbstractWidget::getData();
 
-	if (formats.isEmpty())
-		formats = ImagerapWidget::getSupportedFormats();
-
 	base.insert(
 	{
 		{ "actions", action },
@@ -93,7 +90,8 @@ bool ImagerapWidget::validateData(const QVariantMap& data) const
 {
 	return AbstractWidget::validateData(data) &&
 			data.value("level").toInt() >= ui->levelSpin->minimum() &&
-			data.value("level").toInt() <= ui->levelSpin->maximum();
+			data.value("level").toInt() <= ui->levelSpin->maximum() &&
+			!data.value("filter").toStringList().isEmpty();
 }
 
 QString ImagerapWidget::getDescriptionString(void) const
@@ -131,9 +129,12 @@ QStringList ImagerapWidget::getSelectedFormats(void) const
 {
 	auto text = ui->extEdit->text()
 			  .replace(';', ',')
-			  .replace(' ', ',');
+			  .replace(' ', ',')
+			  .split(',', Qt::SkipEmptyParts);
 
-	return text.split(',', Qt::SkipEmptyParts);
+	text.removeDuplicates();
+
+	return text;
 }
 
 QStringList ImagerapWidget::getSupportedFormats(void)
@@ -157,9 +158,11 @@ bool ImagerapWidget::setData(const QVariantMap& data, bool force)
 
 	for (int i = 1; i < M->rowCount(); ++i)
 	{
-		const bool ok = list & (1 << (i-1));
+		const bool ok = list & M->item(i)->data().toInt();
 		M->item(i)->setCheckState(ok ? Qt::Checked : Qt::Unchecked);
 	}
+
+	qDebug() << list << getSelectedActions();
 
 	return AbstractWidget::setData(data);
 }
@@ -173,7 +176,7 @@ void ImagerapWidget::actionDataChanged(QStandardItem* item)
 	const bool same = actions == 0b111;
 	const bool none = actions == 0b000;
 
-	if (!same && !none) M->item(0)->setText("Selected raports");
+	if (!same && !none) M->item(0)->setText(tr("Selected raports"));
 	else M->item(0)->setText(tr("All raports"));
 }
 

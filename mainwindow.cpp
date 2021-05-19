@@ -174,6 +174,9 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionAbout, &QAction::triggered,
 		   this, &MainWindow::aboutActionClicked);
 
+	connect(ui->actionWizard, &QAction::triggered,
+		   this, &MainWindow::wizardActionClicked);
+
 	connect(ui->actionAllowclose, &QAction::toggled,
 		   this, &MainWindow::dockOptionsChanged);
 
@@ -328,6 +331,24 @@ void MainWindow::clearActionClicked(void)
 	raport->clearWidgets();
 }
 
+void MainWindow::wizardActionClicked(void)
+{
+	ConfigWizard* dialog = new ConfigWizard(this);
+
+	connect(dialog, &ConfigWizard::finished,
+		   dialog, &ConfigWizard::deleteLater);
+
+	connect(dialog, &ConfigWizard::onAccepted,
+		   this, &MainWindow::wizardValuesAccepted);
+
+	dialog->setField("srcpath", root);
+	dialog->setField("logpath", logs);
+	dialog->setField("mklogs", ui->actionLogs->isChecked());
+	dialog->setField("mksumm", ui->actionLogs->isChecked());
+
+	dialog->open();
+}
+
 void MainWindow::setRootPath(const QString& path)
 {
 	setWindowTitle(QString("%1 (%2)")
@@ -437,6 +458,23 @@ void MainWindow::workerJobsRequested(const QVariantList& rules)
 void MainWindow::workerJobsDone(const QStringList&)
 {
 	lockWidgets(false);
+}
+
+void MainWindow::wizardValuesAccepted(const QVariantMap& values)
+{
+	validator->setValues(values.value("vals").toList(), true);
+	tasks->setValues(values.value("tass").toList(), true);
+	raport->setValues(values.value("raps").toList(), true);
+
+	ui->actionGenerate->setChecked(values.value("logging").toBool());
+
+	const QString newroot = values.value("root").toString();
+	const QString newlogs = values.value("logs").toString();
+
+	if (!newroot.isEmpty()) setRootPath(newroot);
+	if (!newlogs.isEmpty()) setLogPath(newlogs);
+
+	if (values.value("autorun").toBool()) runActionClicked();
 }
 
 void MainWindow::lockWidgets(bool lock)

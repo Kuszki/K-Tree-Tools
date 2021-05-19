@@ -28,7 +28,7 @@
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
    <property name="formAlignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
    </property>
    <item row="0" column="0">
     <widget class="QLabel" name="extLabel">
@@ -66,7 +66,7 @@
    <item row="2" column="1">
     <widget class="QSpinBox" name="levelSpin">
      <property name="specialValueText">
-      <string>Any</string>
+      <string comment="level">Any</string>
      </property>
      <property name="minimum">
       <number>-1</number>

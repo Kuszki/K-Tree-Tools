@@ -44,6 +44,7 @@
      <string>Program</string>
     </property>
     <addaction name="actionRun"/>
+    <addaction name="actionWizard"/>
     <addaction name="separator"/>
     <addaction name="actionLoadall"/>
     <addaction name="actionSaveall"/>
@@ -239,10 +240,19 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="mail-unread"/>
+    <iconset theme="mail-unread">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Generate log files</string>
+   </property>
+  </action>
+  <action name="actionWizard">
+   <property name="icon">
+    <iconset theme="preferences-system"/>
+   </property>
+   <property name="text">
+    <string>Run wizard</string>
    </property>
   </action>
  </widget>

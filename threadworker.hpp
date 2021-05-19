@@ -68,7 +68,8 @@ class ThreadWorker : public QObject
 							 const QString& objDesc = QString());
 
 		QStringList validateImages(const Common::NODELIST& nodes,
-							  int level, int dpi, int qual,
+							  int level, int dpi,
+							  int minqual, int maxqual,
 							  const QStringList& filter,
 							  const QString& objDesc = QString());
 

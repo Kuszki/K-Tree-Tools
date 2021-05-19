@@ -187,8 +187,7 @@ QVariantList AbstractDock::getValues(bool enabled, bool valid) const
 
 bool AbstractDock::setValues(const QVariantList& data, bool wipe)
 {
-	if (data.isEmpty()) return false;
-	else if (wipe) clearWidgets();
+	if (wipe) clearWidgets();
 
 	bool ok = true;
 

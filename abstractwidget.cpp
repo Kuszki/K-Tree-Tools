@@ -60,7 +60,7 @@ void AbstractWidget::setActive(bool active)
 
 bool AbstractWidget::setData(const QVariantMap& data, bool force)
 {
-	setActive(data.value("active").toBool()); return true;
+	setActive(data.value("active", true).toBool()); return true;
 }
 
 const QString& AbstractWidget::getClassname(void) const

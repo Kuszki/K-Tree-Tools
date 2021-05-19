@@ -35,6 +35,8 @@
 
 #include "aboutdialog.hpp"
 
+#include "configwizard.hpp"
+
 #include "common.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -87,6 +89,7 @@ class MainWindow : public QMainWindow
 		void saveActionClicked(void);
 		void loadActionClicked(void);
 		void clearActionClicked(void);
+		void wizardActionClicked(void);
 
 		void rootActionClicked(void);
 		void logActionClicked(void);
@@ -97,6 +100,8 @@ class MainWindow : public QMainWindow
 		void workerJobRequested(const QVariant& rule);
 		void workerJobsRequested(const QVariantList& rules);
 		void workerJobsDone(const QStringList& list);
+
+		void wizardValuesAccepted(const QVariantMap& values);
 
 		void lockWidgets(bool lock = true);
 

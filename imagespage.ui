@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImagesPage</class>
+ <widget class="QWizardPage" name="ImagesPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>164</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Images options</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="preferences-system">
+    <normaloff>.</normaloff>.</iconset>
+  </property>
+  <property name="title">
+   <string>Images options</string>
+  </property>
+  <property name="subTitle">
+   <string>Select images validaton options</string>
+  </property>
+  <attribute name="pageId">
+   <string notr="true">2</string>
+  </attribute>
+  <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+   </property>
+   <property name="rowWrapPolicy">
+    <enum>QFormLayout::DontWrapRows</enum>
+   </property>
+   <property name="labelAlignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+   </property>
+   <property name="formAlignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="extsLabel">
+     <property name="text">
+      <string>Image types</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="extsLayout">
+     <item>
+      <widget class="QCheckBox" name="pdfCheck">
+       <property name="text">
+        <string notr="true">PDF</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="tiffCheck">
+       <property name="text">
+        <string notr="true">TIFF</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="jpegCheck">
+       <property name="text">
+        <string notr="true">JPEG</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="resLabel">
+     <property name="text">
+      <string>Required resolution</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="resCombo">
+     <item>
+      <property name="text">
+       <string comment="resolution">Any</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">200 DPI</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">300 DPI</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">400 DPI</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">600 DPI</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="qualLabel">
+     <property name="text">
+      <string>Required quality</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="qualCombo">
+     <item>
+      <property name="text">
+       <string comment="quality">Any</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">50-70%</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string notr="true">70-100%</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="actionsLabel">
+     <property name="text">
+      <string>Actions</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <layout class="QVBoxLayout" name="actionsLayout">
+     <item>
+      <widget class="QCheckBox" name="corruptedCheck">
+       <property name="text">
+        <string>Check corrupted image files</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="summaryCheck">
+       <property name="text">
+        <string>Generate summary raport</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

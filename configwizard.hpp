@@ -18,52 +18,42 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef IMAGEVALWIDGET_HPP
-#define IMAGEVALWIDGET_HPP
+#ifndef CONFIGWIZARD_HPP
+#define CONFIGWIZARD_HPP
 
 #include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
 
-#include "abstractwidget.hpp"
+namespace Ui {	class ConfigWizard; }
 
-namespace Ui {	class ImagevalWidget; }
-
-class ImagevalWidget : public AbstractWidget
+class ConfigWizard : public QWizard
 {
 
 		Q_OBJECT
 
 	private:
 
-		Ui::ImagevalWidget *ui;
+		Ui::ConfigWizard *ui;
 
 	public:
 
-		explicit ImagevalWidget(QWidget *parent = nullptr,
-						    const QVariantMap& data = QVariantMap());
-		virtual ~ImagevalWidget(void) override;
+		explicit ConfigWizard(QWidget *parent = nullptr);
+		virtual ~ConfigWizard(void) override;
 
-		virtual QVariantMap getData(void) const override;
-
-		virtual bool validateData(const QVariantMap& data) const override;
-
-		virtual QString getDescriptionString(void) const override;
-		virtual QString getJobnameString(void) const override;
-
-		QStringList getSelectedFormats(void) const;
-		static QStringList getSupportedFormats(void);
+		QVariantMap getTypesvalData(void) const;
+		QVariantMap getImagesvalData(void) const;
+		QVariantMap getEmptyvalData(void) const;
+		QVariantMap getImagesrapData(void) const;
 
 	public slots:
 
-		virtual bool setData(const QVariantMap& data,
-						 bool force = false) override;
+		virtual void accept(void) override;
 
-	private slots:
+	signals:
 
-		void filterStringChanged(void);
-		void spinValueChanged(void);
+		void onAccepted(const QVariantMap&);
 
 };
 
-#endif // IMAGEVALWIDGET_HPP
+#endif // CONFIGWIZARD_HPP

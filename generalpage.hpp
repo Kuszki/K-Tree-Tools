@@ -18,52 +18,42 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef IMAGEVALWIDGET_HPP
-#define IMAGEVALWIDGET_HPP
+#ifndef GENERALPAGE_HPP
+#define GENERALPAGE_HPP
 
 #include <QtWidgets>
 #include <QtCore>
 #include <QtGui>
 
-#include "abstractwidget.hpp"
+namespace Ui {	class GeneralPage; }
 
-namespace Ui {	class ImagevalWidget; }
-
-class ImagevalWidget : public AbstractWidget
+class GeneralPage : public QWizardPage
 {
 
 		Q_OBJECT
 
 	private:
 
-		Ui::ImagevalWidget *ui;
+		Ui::GeneralPage *ui;
+		QString wrongstyle;
 
 	public:
 
-		explicit ImagevalWidget(QWidget *parent = nullptr,
-						    const QVariantMap& data = QVariantMap());
-		virtual ~ImagevalWidget(void) override;
+		explicit GeneralPage(QWidget *parent = nullptr);
+		virtual ~GeneralPage(void) override;
 
-		virtual QVariantMap getData(void) const override;
+		virtual void initializePage(void) override;
+		virtual void cleanupPage(void) override;
 
-		virtual bool validateData(const QVariantMap& data) const override;
-
-		virtual QString getDescriptionString(void) const override;
-		virtual QString getJobnameString(void) const override;
-
-		QStringList getSelectedFormats(void) const;
-		static QStringList getSupportedFormats(void);
-
-	public slots:
-
-		virtual bool setData(const QVariantMap& data,
-						 bool force = false) override;
+		virtual bool isComplete(void) const override;
 
 	private slots:
 
-		void filterStringChanged(void);
-		void spinValueChanged(void);
+		void srcButtonClicked(void);
+		void logButtonClicked(void);
+
+		void formDataChanged(void);
 
 };
 
-#endif // IMAGEVALWIDGET_HPP
+#endif // GENERALPAGE_HPP

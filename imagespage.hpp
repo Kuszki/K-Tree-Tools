@@ -18,52 +18,37 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef IMAGEVALWIDGET_HPP
-#define IMAGEVALWIDGET_HPP
+#ifndef IMAGESPAGE_HPP
+#define IMAGESPAGE_HPP
 
-#include <QtWidgets>
-#include <QtCore>
-#include <QtGui>
+#include <QWizardPage>
 
-#include "abstractwidget.hpp"
+namespace Ui { class ImagesPage; }
 
-namespace Ui {	class ImagevalWidget; }
-
-class ImagevalWidget : public AbstractWidget
+class ImagesPage : public QWizardPage
 {
 
 		Q_OBJECT
 
 	private:
 
-		Ui::ImagevalWidget *ui;
+		Ui::ImagesPage *ui;
+		bool isLogPath = false;
 
 	public:
 
-		explicit ImagevalWidget(QWidget *parent = nullptr,
-						    const QVariantMap& data = QVariantMap());
-		virtual ~ImagevalWidget(void) override;
+		explicit ImagesPage(QWidget *parent = nullptr);
+		virtual ~ImagesPage(void) override;
 
-		virtual QVariantMap getData(void) const override;
+		virtual void initializePage(void) override;
+		virtual void cleanupPage(void) override;
 
-		virtual bool validateData(const QVariantMap& data) const override;
-
-		virtual QString getDescriptionString(void) const override;
-		virtual QString getJobnameString(void) const override;
-
-		QStringList getSelectedFormats(void) const;
-		static QStringList getSupportedFormats(void);
-
-	public slots:
-
-		virtual bool setData(const QVariantMap& data,
-						 bool force = false) override;
+		virtual bool isComplete(void) const override;
 
 	private slots:
 
-		void filterStringChanged(void);
-		void spinValueChanged(void);
+		void formDataChanged(void);
 
 };
 
-#endif // IMAGEVALWIDGET_HPP
+#endif // IMAGESPAGE_HPP
