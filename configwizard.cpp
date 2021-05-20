@@ -77,7 +77,7 @@ QVariantMap ConfigWizard::getImagesvalData(void) const
 	const int reqres = dpiMap.value(field("reqres").toInt(), 0);
 	const QPair<int, int> reqqual = qualMap.value(field("reqqual").toInt(), {0, 100});
 
-	if (imgExts.isEmpty()) return QVariantMap();
+	if (imgExts.isEmpty() || !(reqres || reqqual.first)) return QVariantMap();
 	else return
 	{
 		{ "class", "imageval" },
