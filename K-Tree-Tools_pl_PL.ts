@@ -1051,7 +1051,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     <message>
         <location filename="mainwindow.ui" line="255"/>
         <source>Run wizard</source>
-        <translation>Uruckom kreator konfiguracji</translation>
+        <translation>Uruchom kreator konfiguracji</translation>
     </message>
     <message>
         <location filename="mainwindow.cpp" line="50"/>
