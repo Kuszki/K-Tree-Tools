@@ -1569,7 +1569,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <location filename="threadworker.cpp" line="326"/>
         <source>Wrong quality (%2%) in image (page %3): %1</source>
         <oldsource>Wrong quality (%2%) in image: %1</oldsource>
-        <translation>Zbyt niska jakość obrazu (%2%) (strona %3): %1</translation>
+        <translation>Nieprawidłowa jakość obrazu (%2%) (strona %3): %1</translation>
     </message>
     <message>
         <location filename="threadworker.cpp" line="327"/>

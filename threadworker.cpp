@@ -1703,7 +1703,7 @@ void ThreadWorker::startProcessList(const QString& path, const QString& logs, co
 		}
 	}
 
-	if (!logs.isEmpty()) saveLogs("summary", list);
+	if (!logs.isEmpty()) { taskno = 0; saveLogs("summary", list); }
 
 	emit onJobChange({ tr("Done") });
 	emit onJobDone(list);
