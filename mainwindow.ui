@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">SC-Walidator</string>
+   <string notr="true">K-Tree-Tools</string>
   </property>
   <property name="windowIcon">
    <iconset theme="tools-check-spelling">
@@ -249,7 +249,8 @@
   </action>
   <action name="actionWizard">
    <property name="icon">
-    <iconset theme="preferences-system"/>
+    <iconset theme="preferences-system">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>Run wizard</string>
