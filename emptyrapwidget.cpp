@@ -60,7 +60,7 @@ QString EmptyrapWidget::getDescriptionString(void) const
 	const auto lvl = ui->levelSpin->value();
 
 	return tr("%3 (level: %1, action: '%2')")
-			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
+			.arg(lvl == -1 ? tr("Any", "level") : QString::number(lvl))
 			.arg(ui->actionCombo->currentText())
 			.arg(getJobnameString());
 }

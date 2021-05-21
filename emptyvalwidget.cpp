@@ -63,7 +63,7 @@ QString EmptyvalWidget::getDescriptionString(void) const
 	const auto lvl = ui->levelSpin->value();
 
 	return tr("%4 (level: %1, action: '%2', objects: '%3')")
-			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
+			.arg(lvl == -1 ? tr("Any", "level") : QString::number(lvl))
 			.arg(ui->actionCombo->currentText())
 			.arg(ui->objectCombo->currentText())
 			.arg(getJobnameString());

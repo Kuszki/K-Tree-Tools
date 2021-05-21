@@ -84,7 +84,7 @@ QString CopyjobWidget::getDescriptionString(void) const
 	const auto lvl = ui->levelSpin->value();
 
 	return tr("%7 (level: %1, action: '%2', format: '%3' file: '%4', column: %5, destination: '%6')")
-			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
+			.arg(lvl == -1 ? tr("Any", "level") : QString::number(lvl))
 			.arg(ui->actionCombo->currentText())
 			.arg(ui->formatCombo->currentText())
 			.arg(ui->srcpathEdit->text())

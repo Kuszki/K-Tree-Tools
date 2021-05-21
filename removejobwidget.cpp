@@ -73,7 +73,7 @@ QString RemovejobWidget::getDescriptionString(void) const
 	const auto lvl = ui->levelSpin->value();
 
 	return tr("%5 (level: %1, action: '%2', file: '%3', column: %4)")
-			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
+			.arg(lvl == -1 ? tr("Any", "level") : QString::number(lvl))
 			.arg(ui->actionCombo->currentText())
 			.arg(ui->pathEdit->text())
 			.arg(ui->columnSpin->value())

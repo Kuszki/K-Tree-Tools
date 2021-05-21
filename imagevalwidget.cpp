@@ -80,10 +80,11 @@ QString ImagevalWidget::getDescriptionString(void) const
 {
 	const auto formats = getSelectedFormats().join(", ");
 	const auto lvl = ui->levelSpin->value();
+	const auto dpi = ui->dpiSpin->value();
 
 	return tr("%6 (level: %1, dpi: %2, quality: <%3; %4>, formats: '%5')")
-			.arg(lvl == -1 ? tr("Any") : QString::number(lvl))
-			.arg(ui->dpiSpin->value())
+			.arg(lvl == -1 ? tr("Any", "level") : QString::number(lvl))
+			.arg(dpi == -1 ? tr("Any", "resolution") : QString::number(dpi))
 			.arg(ui->minqualSpin->value())
 			.arg(ui->maxqualSpin->value())
 			.arg(formats.isEmpty() ? tr("All supported formats") : formats)

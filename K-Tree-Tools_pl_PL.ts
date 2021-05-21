@@ -235,14 +235,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="copyjobwidget.ui" line="184"/>
+        <location filename="copyjobwidget.cpp" line="87"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="copyjobwidget.cpp" line="87"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="copyjobwidget.cpp" line="86"/>
@@ -382,14 +382,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="emptyrapwidget.ui" line="67"/>
+        <location filename="emptyrapwidget.cpp" line="63"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="emptyrapwidget.cpp" line="63"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="emptyrapwidget.cpp" line="62"/>
@@ -431,6 +431,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="emptyvalwidget.ui" line="70"/>
+        <location filename="emptyvalwidget.cpp" line="66"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
@@ -442,9 +443,8 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation>Dowolne</translation>
     </message>
     <message>
-        <location filename="emptyvalwidget.cpp" line="66"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="emptyvalwidget.ui" line="86"/>
@@ -562,14 +562,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="imagerapwidget.ui" line="69"/>
+        <location filename="imagerapwidget.cpp" line="103"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="imagerapwidget.cpp" line="103"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="imagerapwidget.ui" line="85"/>
@@ -694,6 +694,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="imagevalwidget.ui" line="56"/>
+        <location filename="imagevalwidget.cpp" line="87"/>
         <source>Any</source>
         <comment>resolution</comment>
         <translation>Dowolna</translation>
@@ -710,6 +711,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="imagevalwidget.ui" line="111"/>
+        <location filename="imagevalwidget.cpp" line="86"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
@@ -730,17 +732,16 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation></translation>
     </message>
     <message>
-        <location filename="imagevalwidget.cpp" line="85"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
-        <location filename="imagevalwidget.cpp" line="84"/>
+        <location filename="imagevalwidget.cpp" line="85"/>
         <source>%6 (level: %1, dpi: %2, quality: &lt;%3; %4&gt;, formats: &apos;%5&apos;)</source>
         <translation>%6 (poziom: %1, dpi: %2, jakość: &lt;%3; %4&gt;, formaty: &apos;%5&apos;)</translation>
     </message>
     <message>
-        <location filename="imagevalwidget.cpp" line="89"/>
+        <location filename="imagevalwidget.cpp" line="90"/>
         <source>All supported formats</source>
         <translation>Wszystkie obsługiwane formaty</translation>
     </message>
@@ -749,7 +750,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation type="vanished">%5 (poziom: %1, dpi: %2, jakość: %3, formaty: &apos;%4&apos;)</translation>
     </message>
     <message>
-        <location filename="imagevalwidget.cpp" line="95"/>
+        <location filename="imagevalwidget.cpp" line="96"/>
         <source>Checking image parameters</source>
         <translation>Sprawdzanie parametrów obrazów</translation>
     </message>
@@ -814,12 +815,12 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="itemsrapwidget.ui" line="135"/>
+        <location filename="itemsrapwidget.cpp" line="80"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="itemsrapwidget.cpp" line="80"/>
         <location filename="itemsrapwidget.cpp" line="87"/>
         <source>Any</source>
         <translation>Dowolny</translation>
@@ -918,14 +919,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="itemsvalwidget.ui" line="145"/>
+        <location filename="itemsvalwidget.cpp" line="76"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="itemsvalwidget.cpp" line="76"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="itemsvalwidget.cpp" line="75"/>
@@ -1302,14 +1303,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="removejobwidget.ui" line="130"/>
+        <location filename="removejobwidget.cpp" line="76"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="removejobwidget.cpp" line="76"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="removejobwidget.cpp" line="75"/>
@@ -2149,14 +2150,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="typesrapwidget.ui" line="63"/>
+        <location filename="typesrapwidget.cpp" line="67"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="typesrapwidget.cpp" line="67"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="typesrapwidget.cpp" line="66"/>
@@ -2208,14 +2209,14 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
     </message>
     <message>
         <location filename="typesvalwidget.ui" line="87"/>
+        <location filename="typesvalwidget.cpp" line="70"/>
         <source>Any</source>
         <comment>level</comment>
         <translation>Dowolny</translation>
     </message>
     <message>
-        <location filename="typesvalwidget.cpp" line="70"/>
         <source>Any</source>
-        <translation>Dowolny</translation>
+        <translation type="vanished">Dowolny</translation>
     </message>
     <message>
         <location filename="typesvalwidget.cpp" line="69"/>
