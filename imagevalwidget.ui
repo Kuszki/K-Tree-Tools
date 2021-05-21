@@ -53,7 +53,7 @@
    <item row="1" column="1">
     <widget class="QSpinBox" name="dpiSpin">
      <property name="specialValueText">
-      <string>Any</string>
+      <string comment="resolution">Any</string>
      </property>
      <property name="suffix">
       <string notr="true"> DPI</string>

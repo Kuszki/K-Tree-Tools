@@ -74,10 +74,11 @@ QVariantMap ConfigWizard::getImagesvalData(void) const
 	if (field("chtiff").toBool()) imgExts.append({ "tif", "tiff" });
 	if (field("chpdf").toBool()) imgExts.append("pdf");
 
+	const bool reqval = field("chcorr").toBool();
 	const int reqres = dpiMap.value(field("reqres").toInt(), 0);
 	const QPair<int, int> reqqual = qualMap.value(field("reqqual").toInt(), {0, 100});
 
-	if (imgExts.isEmpty() || !(reqres || reqqual.first)) return QVariantMap();
+	if (imgExts.isEmpty() || !(reqres || reqqual.first || reqval)) return QVariantMap();
 	else return
 	{
 		{ "class", "imageval" },

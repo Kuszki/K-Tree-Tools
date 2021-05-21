@@ -693,6 +693,12 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation>Zadana rozdzielczość</translation>
     </message>
     <message>
+        <location filename="imagevalwidget.ui" line="56"/>
+        <source>Any</source>
+        <comment>resolution</comment>
+        <translation>Dowolna</translation>
+    </message>
+    <message>
         <location filename="imagevalwidget.ui" line="75"/>
         <source>Minimum quality</source>
         <translation>Minimalna jakość</translation>
@@ -724,7 +730,6 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation></translation>
     </message>
     <message>
-        <location filename="imagevalwidget.ui" line="56"/>
         <location filename="imagevalwidget.cpp" line="85"/>
         <source>Any</source>
         <translation>Dowolny</translation>
@@ -1049,7 +1054,7 @@ Niniejszy program rozpowszechniany jest z nadzieją, iż będzie on użyteczny �
         <translation>Generuj pliki dzienników</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="255"/>
+        <location filename="mainwindow.ui" line="256"/>
         <source>Run wizard</source>
         <translation>Uruchom kreator konfiguracji</translation>
     </message>
